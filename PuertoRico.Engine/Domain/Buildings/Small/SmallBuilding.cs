@@ -2,6 +2,6 @@
 {
     public abstract class SmallBuilding : Building
     {
-        
+        public override int WorkerCapacity => 1;
     }
 }

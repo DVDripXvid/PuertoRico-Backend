@@ -10,9 +10,9 @@ namespace PuertoRico.Engine.Domain.Player
     {
         BuildingCollection Buildings { get; }
         TilesCollection Tiles { get; }
-        IEnumerable<IColonist> Colonists { get; }
+        List<IColonist> Colonists { get; }
 
-        IEnumerable<IVictoryPointChip> VictoryPointChips { get; }
+        List<IVictoryPointChip> VictoryPointChips { get; }
 
         void Build(IBuilding building);
 

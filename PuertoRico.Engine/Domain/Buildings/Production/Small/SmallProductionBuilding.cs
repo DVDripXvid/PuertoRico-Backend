@@ -2,6 +2,6 @@
 {
     public abstract class SmallProductionBuilding : ProductionBuilding
     {
-        
+        public override int WorkerCapacity => 1;
     }
 }
