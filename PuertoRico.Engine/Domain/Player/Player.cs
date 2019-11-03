@@ -9,7 +9,7 @@ namespace PuertoRico.Engine.Domain.Player
     {
         public BuildingCollection Buildings { get; } = new BuildingCollection();
         public TilesCollection Tiles { get;  } = new TilesCollection();
-        public List<IColonist> Colonists { get; } = new List<IColonist>();
+        public List<IColonist> IdleColonists { get; } = new List<IColonist>();
         public List<IVictoryPointChip> VictoryPointChips { get; } = new List<IVictoryPointChip>();
 
         public void Build(IBuilding building) {
@@ -21,7 +21,7 @@ namespace PuertoRico.Engine.Domain.Player
         }
 
         public void AddColonist(IColonist colonist) {
-            Colonists.Add(colonist);
+            IdleColonists.Add(colonist);
         }
 
         public void AddVictoryPointChips(IEnumerable<IVictoryPointChip> victoryPointChips) {

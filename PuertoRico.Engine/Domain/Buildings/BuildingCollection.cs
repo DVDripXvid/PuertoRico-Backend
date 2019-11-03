@@ -13,7 +13,7 @@ namespace PuertoRico.Engine.Domain.Buildings
     {
         private readonly List<IBuilding> _buildings;
 
-        public IEnumerable<IBuilding> SmallProductionBuildings => _buildings.OfType<SmallProductionBuilding>();
+        public IEnumerable<SmallProductionBuilding> SmallProductionBuildings => _buildings.OfType<SmallProductionBuilding>();
         public IEnumerable<LargeProductionBuilding> LargeProductionBuildings => _buildings.OfType<LargeProductionBuilding>();
         public IEnumerable<ProductionBuilding> ProductionBuildings => _buildings.OfType<ProductionBuilding>();
         public IEnumerable<LargeBuilding> LargeBuildings => _buildings.OfType<LargeBuilding>();
