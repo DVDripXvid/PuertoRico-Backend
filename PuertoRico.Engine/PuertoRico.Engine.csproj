@@ -3,11 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <UserSecretsId>aspnet-PuertoRico.Engine-13823BBA-9B20-4519-858C-83B9B5164AC6</UserSecretsId>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureADB2C.UI" Version="3.0.0" />
         <PackageReference Include="Microsoft.Azure.SignalR" Version="1.1.1" />
+        <PackageReference Include="Shuffle.Sources" Version="0.2.1" />
     </ItemGroup>
 
 </Project>

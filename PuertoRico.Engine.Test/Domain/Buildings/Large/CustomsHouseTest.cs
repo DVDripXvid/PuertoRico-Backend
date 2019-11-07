@@ -17,7 +17,7 @@ namespace PuertoRico.Engine.Test.Domain.Buildings.Large
         [Fact]
         public void ComputeVPs_Exact() {
             IPlayer player = new Player();
-            var chips = new List<IVictoryPointChip> {
+            var chips = new List<VictoryPointChip> {
                 new VictoryPointChip(),
                 new VictoryPointChip(),
                 new VictoryPointChip(),
@@ -33,7 +33,7 @@ namespace PuertoRico.Engine.Test.Domain.Buildings.Large
         [Fact]
         public void ComputeVPs_NoPoints() {
             IPlayer player = new Player();
-            var chips = new List<IVictoryPointChip> {
+            var chips = new List<VictoryPointChip> {
                 new VictoryPointChip(),
                 new VictoryPointChip(),
                 new VictoryPointChip(),
@@ -48,7 +48,7 @@ namespace PuertoRico.Engine.Test.Domain.Buildings.Large
         [Fact]
         public void ComputeVPs_WithRest() {
             IPlayer player = new Player();
-            var chips = new List<IVictoryPointChip> {
+            var chips = new List<VictoryPointChip> {
                 new VictoryPointChip(),
                 new VictoryPointChip(),
                 new VictoryPointChip(),

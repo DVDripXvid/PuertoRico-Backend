@@ -1,8 +1,11 @@
-﻿namespace PuertoRico.Engine.Domain.Buildings.Production.Large
+﻿using PuertoRico.Engine.Domain.Resources.Goods;
+
+namespace PuertoRico.Engine.Domain.Buildings.Production.Large
 {
-    public class LargeSugarMill : LargeProductionBuilding
+    public class LargeSugarMill : LargeProductionBuilding<Sugar>
     {
         public override int Cost => 4;
         public override int VictoryPoint => 2;
+        public override int MaxDiscountByQuarry => 2;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace PuertoRico.Engine.Domain.Resources
 {
-    public class Colonist : IColonist
+    public class Colonist
     {
         
     }

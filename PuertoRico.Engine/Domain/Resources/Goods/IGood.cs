@@ -2,6 +2,6 @@
 {
     public interface IGood
     {
-        
+        GoodType Type { get; }
     }
 }

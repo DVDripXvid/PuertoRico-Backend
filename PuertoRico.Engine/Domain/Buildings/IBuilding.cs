@@ -7,11 +7,13 @@ namespace PuertoRico.Engine.Domain.Buildings
     {
         int Cost { get; }
         int VictoryPoint { get; }
-        List<IColonist> Workers { get; }
+        List<Colonist> Workers { get; }
         int WorkerCapacity { get; }
         string Name { get; }
+        int MaxDiscountByQuarry { get; }
 
-        void AddWorker(IColonist colonist);
-        IColonist RemoveWorker();
+        void AddWorker(Colonist colonist);
+        Colonist RemoveWorker();
+        bool IsWorking();
     }
 }

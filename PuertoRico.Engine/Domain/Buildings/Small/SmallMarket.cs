@@ -4,5 +4,6 @@
     {
         public override int Cost => 1;
         public override int VictoryPoint => 1;
+        public override int MaxDiscountByQuarry => 1;
     }
 }
