@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Resources.Goods;
@@ -14,7 +15,7 @@ namespace PuertoRico.Engine.Domain.Player
         TileCollection Tiles { get; }
         List<Colonist> IdleColonists { get; }
         List<VictoryPointChip> VictoryPointChips { get; }
-        IRole Role { get; set; }
+        IRole Role { get; }
         List<IGood> Goods { get; }
         int Doubloons { get; set; }
         string UserId { get; }
@@ -28,5 +29,7 @@ namespace PuertoRico.Engine.Domain.Player
         void AddVictoryPointChips(IEnumerable<VictoryPointChip> victoryPointChips);
 
         void AddGoods(IEnumerable<IGood> goods);
+        HashSet<ActionType> GetAvailableActionTypes();
+        void SelectRole(IRole role);
     }
 }

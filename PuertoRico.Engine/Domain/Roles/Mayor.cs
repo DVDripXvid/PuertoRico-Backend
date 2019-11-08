@@ -11,8 +11,8 @@ namespace PuertoRico.Engine.Domain.Roles
 
         public Mayor(Game game) : base(game) { }
 
-        public override void OnSelect(IPlayer roleOwner, IEnumerable<IPlayer> players) {
-            base.OnSelect(roleOwner, players);
+        public override void OnSelect(IPlayer roleOwner) {
+            base.OnSelect(roleOwner);
             if (Game.Colonists.Count > 0) {
                 roleOwner.AddColonist(Game.Colonists.Pop());
             }

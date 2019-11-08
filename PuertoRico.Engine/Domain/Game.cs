@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
+using PuertoRico.Engine.Domain.Buildings.Production.Small;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Misc;
 using PuertoRico.Engine.Domain.Player;
@@ -20,6 +22,7 @@ namespace PuertoRico.Engine.Domain
         public Stack<Colonist> Colonists { get; }
         public Stack<Quarry> Quarries { get; }
         public List<IPlayer> Players { get; }
+        public IPlayer CurrentPlayer { get; private set; }
         public ColonistsShip ColonistsShip { get; }
         public TradeHouse TradeHouse { get; } = new TradeHouse();
         public List<IGood> Goods { get; }
@@ -47,10 +50,15 @@ namespace PuertoRico.Engine.Domain
 
             Buildings = InitializeBuildings();
             Players = InitializePlayers(playerCount);
+            CurrentPlayer = Players.First();
             ColonistsShip = new ColonistsShip(playerCount);
             Goods = InitializeGoods();
             CargoShips = InitializeCargoShips(playerCount);
             VictoryPointChips = InitializeVictoryPointChips(playerCount);
+        }
+
+        public void MoveToNextPlayer() {
+            CurrentPlayer = GetNextPlayerTo(CurrentPlayer);
         }
 
         public void ForEachPlayerStartWith(IPlayer initPlayer, Action<IPlayer> action) {
@@ -81,7 +89,13 @@ namespace PuertoRico.Engine.Domain
                 // TODO: rest of the small buildings
                 new Hacienda(),
                 new Hacienda(),
+                new Hospice(),
+                new Hospice(),
                 // TODO: production buildings
+                // Small production buildings
+                new SmallIndigoPlant(),
+                new SmallIndigoPlant(),
+                new SmallIndigoPlant()
             };
         }
 

@@ -9,8 +9,8 @@ namespace PuertoRico.Engine.Domain.Roles
     {
         public Prospector(Game game) : base(game) { }
 
-        public override void OnSelect(IPlayer roleOwner, IEnumerable<IPlayer> players) {
-            base.OnSelect(roleOwner, players);
+        public override void OnSelect(IPlayer roleOwner) {
+            base.OnSelect(roleOwner);
             roleOwner.Doubloons += 1;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Resources.Goods;
@@ -11,10 +12,10 @@ namespace PuertoRico.Engine.Domain.Player
     public class Player : IPlayer
     {
         public BuildingCollection Buildings { get; } = new BuildingCollection();
-        public TileCollection Tiles { get;  } = new TileCollection();
+        public TileCollection Tiles { get; } = new TileCollection();
         public List<Colonist> IdleColonists { get; } = new List<Colonist>();
         public List<VictoryPointChip> VictoryPointChips { get; } = new List<VictoryPointChip>();
-        public IRole Role { get; set; }
+        public IRole Role { get; private set; }
         public int Doubloons { get; set; }
         public List<IGood> Goods { get; } = new List<IGood>();
         public string UserId { get; }
@@ -46,6 +47,19 @@ namespace PuertoRico.Engine.Domain.Player
 
         public void AddGoods(IEnumerable<IGood> goods) {
             Goods.AddRange(goods);
+        }
+
+        public void SelectRole(IRole role) {
+            role.OnSelect(this);
+            Role = role;
+        }
+
+        public HashSet<ActionType> GetAvailableActionTypes() {
+            if (Role == null) {
+                return new HashSet<ActionType> {ActionType.SelectRole};
+            }
+
+            return Role.GetAvailableActionTypes(this);
         }
     }
 }

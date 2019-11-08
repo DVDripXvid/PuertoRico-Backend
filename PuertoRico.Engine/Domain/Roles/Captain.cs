@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using PuertoRico.Engine.Actions;
-using PuertoRico.Engine.Domain.Buildings.Large;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources.Goods;
@@ -14,7 +13,7 @@ namespace PuertoRico.Engine.Domain.Roles
         private const string DeliverPhase = "deliver";
         private const string StorePhase = "store";
         private readonly Dictionary<string, bool> _isWharfUsedBy;
-        private bool _isPrivilegeUsed = false;
+        private bool _isPrivilegeUsed;
         private readonly Dictionary<string, IGood> _defaultStore = new Dictionary<string, IGood>();
 
         public Captain(Game game) : base(game) {
@@ -105,7 +104,7 @@ namespace PuertoRico.Engine.Domain.Roles
             DoDeliver(deliveredGoods, player);
 
             if (IsAbleToUseCargoShip(player) && IsAbleToUseWharf(player)) {
-                // TODO: move to next player
+                Game.MoveToNextPlayer();
             }
             else if (player.Goods.Count > 0) {
                 SetPlayerPhase(player, StorePhase);
@@ -120,7 +119,7 @@ namespace PuertoRico.Engine.Domain.Roles
             var deliveredGoods = player.Goods.Where(g => g.Type == useWharf.GoodType).ToList();
             DoDeliver(deliveredGoods, player);
             if (IsAbleToUseCargoShip(player)) {
-                // TODO: move to next player
+                Game.MoveToNextPlayer();
             }
             else if (player.Goods.Count > 0) {
                 SetPlayerPhase(player, StorePhase);

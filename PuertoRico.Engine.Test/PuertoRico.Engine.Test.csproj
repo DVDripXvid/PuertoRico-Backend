@@ -17,8 +17,4 @@
       <ProjectReference Include="..\PuertoRico.Engine\PuertoRico.Engine.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Domain\Roles" />
-    </ItemGroup>
-
 </Project>

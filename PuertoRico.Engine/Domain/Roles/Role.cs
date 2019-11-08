@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Exceptions;
@@ -12,13 +11,21 @@ namespace PuertoRico.Engine.Domain.Roles
         public virtual string Name => GetType().Name;
         private readonly Dictionary<string, string> _playerPhases = new Dictionary<string, string>();
         protected const string EndedPhase = "ended";
+        public int StackedDoubloons { get; private set; }
         protected Game Game { get; }
         
         protected Role(Game game) {
             Game = game;
         }
 
+        public void AddOneDoubloon() {
+            StackedDoubloons += 1;
+        }
+
         public void Execute(IAction action, IPlayer player) {
+            if (action.ActionType == ActionType.EndRole) {
+                Game.MoveToNextPlayer();
+            }
             var availableActionTypes = GetAvailableActionTypes(player);
             if (!availableActionTypes.Contains(action.ActionType)) {
                 throw new GameException($"{action.ActionType} is not available for role {Name}");
@@ -27,10 +34,10 @@ namespace PuertoRico.Engine.Domain.Roles
             ExecuteInternal(action, player, _playerPhases[player.UserId]);
         }
 
-        public virtual void OnSelect(IPlayer roleOwner, IEnumerable<IPlayer> players) {
-            roleOwner.Role = this;
-            //TODO: add doubloon to role owner
-            foreach (var player in players) {
+        public virtual void OnSelect(IPlayer roleOwner) {
+            roleOwner.Doubloons += StackedDoubloons;
+            StackedDoubloons = 0;
+            foreach (var player in Game.Players) {
                 _playerPhases[player.UserId] = GetInitialPhase(player);
             }
         }

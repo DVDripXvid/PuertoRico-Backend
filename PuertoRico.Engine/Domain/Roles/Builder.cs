@@ -48,9 +48,9 @@ namespace PuertoRico.Engine.Domain.Roles
         private void ExecuteBuild(Build build, IPlayer player) {
             var building = Game.Buildings[build.BuildingIndex];
             var quarryCount = player.Tiles.Quarries.Count();
-            var price = Math.Max(0, building.Cost - Math.Min(quarryCount, building.MaxDiscountByQuarry));
+            var price = building.Cost - Math.Min(quarryCount, building.MaxDiscountByQuarry);
             if (HasPrivilege(player)) {
-                price -= 1;
+                price = Math.Max(0, price - 1);
             }
             if (player.Doubloons < price) {
                 throw new GameException($"Insufficient funds");
