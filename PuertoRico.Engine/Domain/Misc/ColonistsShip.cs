@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PuertoRico.Engine.Domain.Resources;
 
@@ -10,9 +11,10 @@ namespace PuertoRico.Engine.Domain.Misc
 
         private readonly Stack<Colonist> _colonists;
 
-        public ColonistsShip(int capacity) {
-            Capacity = capacity;
-            _colonists = new Stack<Colonist>(capacity);
+        public ColonistsShip(Game game) {
+            Capacity = game.PlayerCount;
+            _colonists = new Stack<Colonist>(Capacity);
+            Refill(game);
         }
 
         public void RecalculateCapacityAndRefill(Game game) {
@@ -20,7 +22,7 @@ namespace PuertoRico.Engine.Domain.Misc
                 .SelectMany(p => p.Buildings)
                 .Select(b => b.WorkerCapacity - b.Workers.Count)
                 .Sum();
-            Capacity = sumOfAvailableBuildingSlots;
+            Capacity =  Math.Max(game.PlayerCount, sumOfAvailableBuildingSlots);
             Refill(game);
         }
 
@@ -33,7 +35,7 @@ namespace PuertoRico.Engine.Domain.Misc
         }
         
         private void Refill(Game game) {
-            while (_colonists.Count < Capacity) {
+            while (_colonists.Count < Capacity && game.Colonists.Count > 0) {
                 _colonists.Push(game.Colonists.Pop());
             }
         }

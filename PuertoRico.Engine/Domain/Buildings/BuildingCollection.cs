@@ -15,14 +15,14 @@ namespace PuertoRico.Engine.Domain.Buildings
     {
         private readonly List<IBuilding> _buildings = new List<IBuilding>(12);
 
-        public IEnumerable<SmallProductionBuilding<IGood>> SmallProductionBuildings =>
-            _buildings.OfType<SmallProductionBuilding<IGood>>();
+        public IEnumerable<ISmallProductionBuilding> SmallProductionBuildings =>
+            _buildings.OfType<ISmallProductionBuilding>();
 
-        public IEnumerable<LargeProductionBuilding<IGood>> LargeProductionBuildings =>
-            _buildings.OfType<LargeProductionBuilding<IGood>>();
+        public IEnumerable<ILargeProductionBuilding> LargeProductionBuildings =>
+            _buildings.OfType<ILargeProductionBuilding>();
 
-        public IEnumerable<ProductionBuilding<IGood>> ProductionBuildings =>
-            _buildings.OfType<ProductionBuilding<IGood>>();
+        public IEnumerable<IProductionBuilding> ProductionBuildings =>
+            _buildings.OfType<IProductionBuilding>();
 
         public IEnumerable<LargeBuilding> LargeBuildings => _buildings.OfType<LargeBuilding>();
         public IEnumerable<SmallBuilding> SmallBuildings => _buildings.OfType<SmallBuilding>();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Exceptions;
@@ -9,6 +10,7 @@ namespace PuertoRico.Engine.Domain.Roles
     public abstract class Role : IRole
     {
         public virtual string Name => GetType().Name;
+        public IPlayer CurrentPlayer { get; private set; }
         private readonly Dictionary<string, string> _playerPhases = new Dictionary<string, string>();
         protected const string EndedPhase = "ended";
         public int StackedDoubloons { get; private set; }
@@ -24,7 +26,7 @@ namespace PuertoRico.Engine.Domain.Roles
 
         public void Execute(IAction action, IPlayer player) {
             if (action.ActionType == ActionType.EndRole) {
-                Game.MoveToNextPlayer();
+                MoveToNextPlayer();
             }
             var availableActionTypes = GetAvailableActionTypes(player);
             if (!availableActionTypes.Contains(action.ActionType)) {
@@ -35,6 +37,7 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         public virtual void OnSelect(IPlayer roleOwner) {
+            CurrentPlayer = roleOwner;
             roleOwner.Doubloons += StackedDoubloons;
             StackedDoubloons = 0;
             foreach (var player in Game.Players) {
@@ -71,6 +74,15 @@ namespace PuertoRico.Engine.Domain.Roles
 
         protected void HandleUnknownPhase(string phase) {
             throw new InvalidOperationException($"{Name} has no {phase} phase");
+        }
+
+        protected void MoveToNextPlayer() {
+            if (_playerPhases.Values.All(p => p == EndedPhase)) {
+                Game.MoveToNextPlayer();
+            }
+            else {
+                CurrentPlayer = Game.GetNextPlayerTo(CurrentPlayer);   
+            }
         }
 
         protected void HandleUnsupportedAction(IAction action) {

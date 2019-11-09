@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PuertoRico.Engine.Domain.Resources.Goods;
+using PuertoRico.Engine.Exceptions;
 using Toore.Shuffling;
 
 namespace PuertoRico.Engine.Domain.Tiles.Plantations
@@ -38,6 +39,9 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
         }
 
         public IPlantation DrawOneVisible(int index) {
+            if (Drawable[index] == null) {
+                throw new GameException("Plantation already drawn");
+            }
             var tile = Drawable[index];
             Drawable[index] = null;
             return tile;

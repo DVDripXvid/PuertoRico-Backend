@@ -21,7 +21,8 @@ namespace PuertoRico.Engine.Domain.Roles
             var actions = new HashSet<ActionType> {ActionType.EndPhase};
             switch (phase) {
                 case SelectTilePhase:
-                    if (HasPrivilege(player) && Game.Quarries.Count > 0) {
+                    if ((HasPrivilege(player) || player.Buildings.ContainsWorkingOfType<ConstructionHut>())
+                        && Game.Quarries.Count > 0) {
                         actions.Add(ActionType.TakeQuarry);
                     }
 

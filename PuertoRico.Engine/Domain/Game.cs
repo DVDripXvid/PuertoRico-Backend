@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
 using PuertoRico.Engine.Domain.Buildings.Production.Small;
@@ -51,14 +52,23 @@ namespace PuertoRico.Engine.Domain
             Buildings = InitializeBuildings();
             Players = InitializePlayers(playerCount);
             CurrentPlayer = Players.First();
-            ColonistsShip = new ColonistsShip(playerCount);
+            ColonistsShip = new ColonistsShip(this);
             Goods = InitializeGoods();
             CargoShips = InitializeCargoShips(playerCount);
             VictoryPointChips = InitializeVictoryPointChips(playerCount);
         }
 
         public void MoveToNextPlayer() {
+            CurrentPlayer.Role.CleanUp();
             CurrentPlayer = GetNextPlayerTo(CurrentPlayer);
+        }
+
+        public HashSet<ActionType> GetAvailableActionTypes(IPlayer player) {
+            if (player == CurrentPlayer && player.Role == null) {
+                return new HashSet<ActionType> {ActionType.SelectRole};
+            }
+
+            return CurrentPlayer.Role.GetAvailableActionTypes(player);
         }
 
         public void ForEachPlayerStartWith(IPlayer initPlayer, Action<IPlayer> action) {

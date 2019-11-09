@@ -12,7 +12,7 @@ namespace PuertoRico.Engine.Domain.Tiles
         private readonly List<ITile> _tiles = new List<ITile>(12);
 
         public IEnumerable<Quarry> Quarries => _tiles.OfType<Quarry>();
-        public IEnumerable<Plantation<IGood>> Plantations => _tiles.OfType<Plantation<IGood>>();
+        public IEnumerable<IPlantation> Plantations => _tiles.OfType<IPlantation>();
 
         public ITile this[int index] => _tiles[index];
 

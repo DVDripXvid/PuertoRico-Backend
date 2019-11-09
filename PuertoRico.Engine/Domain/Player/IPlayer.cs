@@ -21,15 +21,10 @@ namespace PuertoRico.Engine.Domain.Player
         string UserId { get; }
 
         void Build(IBuilding building);
-
         void Plant(ITile tile);
-
         void AddColonist(Colonist colonist);
-
         void AddVictoryPointChips(IEnumerable<VictoryPointChip> victoryPointChips);
-
         void AddGoods(IEnumerable<IGood> goods);
-        HashSet<ActionType> GetAvailableActionTypes();
         void SelectRole(IRole role);
     }
 }

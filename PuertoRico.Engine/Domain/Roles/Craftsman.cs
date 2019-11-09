@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Exceptions;
@@ -9,9 +10,10 @@ using PuertoRico.Engine.Exceptions;
 namespace PuertoRico.Engine.Domain.Roles
 {
     public class Craftsman : Role
+    
     {
         private const string BonusProductionPhase = "production";
-        private readonly Dictionary<GoodType, bool> _isProduced = new Dictionary<GoodType, bool>(5);
+        private Dictionary<GoodType, bool> _isProducedByRoleOwner;
 
         public Craftsman(Game game) : base(game) { }
 
@@ -23,12 +25,19 @@ namespace PuertoRico.Engine.Domain.Roles
                 var producedTobacco = Produce<Tobacco>(p);
                 var producedCoffee = Produce<Coffee>(p);
                 var producedCorn = Produce<Corn>(p);
+                var isProduced = new Dictionary<GoodType, bool> {
+                    {GoodType.Indigo, producedIndigo > 0},
+                    {GoodType.Sugar, producedSugar > 0},
+                    {GoodType.Tobacco, producedTobacco > 0},
+                    {GoodType.Coffee, producedCoffee > 0},
+                    {GoodType.Corn, producedCorn > 0},
+                };
+                if (p.Buildings.ContainsWorkingOfType<Factory>()) {
+                    var producedTypeCount = isProduced.Values.Count(v => v);
+                    p.Doubloons += Factory.BonusForProduction[producedTypeCount];
+                }
                 if (HasPrivilege(p)) {
-                    _isProduced[GoodType.Indigo] = producedIndigo > 0;
-                    _isProduced[GoodType.Sugar] = producedSugar > 0;
-                    _isProduced[GoodType.Tobacco] = producedTobacco > 0;
-                    _isProduced[GoodType.Coffee] = producedCoffee > 0;
-                    _isProduced[GoodType.Corn] = producedCorn > 0;
+                    _isProducedByRoleOwner = isProduced;
                 }
             });
         }
@@ -61,7 +70,7 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         private void ExecuteBonusProduction(BonusProduction bonusProduction, IPlayer player) {
-            if (!_isProduced[bonusProduction.GoodType]) {
+            if (!_isProducedByRoleOwner[bonusProduction.GoodType]) {
                 throw new GameException($"{bonusProduction.GoodType} was not produced");
             }
 

@@ -20,6 +20,10 @@ namespace PuertoRico.Engine.Domain.Misc
             return _goods.Count == Capacity;
         }
 
+        public bool IsNotFull() {
+            return _goods.Count < Capacity;
+        }
+
         public bool IsEmpty() {
             return _goods.Count == 0;
         }

@@ -53,13 +53,5 @@ namespace PuertoRico.Engine.Domain.Player
             role.OnSelect(this);
             Role = role;
         }
-
-        public HashSet<ActionType> GetAvailableActionTypes() {
-            if (Role == null) {
-                return new HashSet<ActionType> {ActionType.SelectRole};
-            }
-
-            return Role.GetAvailableActionTypes(this);
-        }
     }
 }

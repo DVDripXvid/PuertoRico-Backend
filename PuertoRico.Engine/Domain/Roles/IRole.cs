@@ -7,6 +7,7 @@ namespace PuertoRico.Engine.Domain.Roles
     public interface IRole
     {
         string Name { get; }
+        IPlayer CurrentPlayer { get; }
         int StackedDoubloons { get; }
         void AddOneDoubloon();
         void Execute(IAction action, IPlayer player);

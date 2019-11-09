@@ -21,9 +21,9 @@ namespace PuertoRico.Engine.Test.Domain.Buildings.Large
             player.Build(_cityHall);
             
             player.Build(new SmallMarket());
-            player.Build(new SmallMarket());
+            player.Build(new Hacienda());
             
-            player.Build(new LargeSugarMill());
+            player.Build(new SugarMill());
 
             var vp = _cityHall.ComputeVictoryPoints(player);
             
