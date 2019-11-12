@@ -4,6 +4,7 @@ using System.Linq;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
+using PuertoRico.Engine.Domain.Buildings.Production.Large;
 using PuertoRico.Engine.Domain.Buildings.Production.Small;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Misc;
@@ -96,16 +97,52 @@ namespace PuertoRico.Engine.Domain
                 new CustomsHouse(),
                 new GuildHall(),
                 // Small buildings
-                // TODO: rest of the small buildings
+                new ConstructionHut(),
+                new ConstructionHut(),
+                new Factory(),
+                new Factory(),
                 new Hacienda(),
                 new Hacienda(),
+                new Harbor(),
+                new Harbor(),
                 new Hospice(),
                 new Hospice(),
-                // TODO: production buildings
+                new LargeMarket(),
+                new LargeMarket(),
+                new LargeWarehouse(),
+                new LargeWarehouse(),
+                new Office(),
+                new Office(),
+                new SmallMarket(),
+                new SmallMarket(),
+                new SmallWarehouse(),
+                new SmallWarehouse(),
+                new University(),
+                new University(),
+                new Wharf(),
+                new Wharf(),
                 // Small production buildings
                 new SmallIndigoPlant(),
                 new SmallIndigoPlant(),
-                new SmallIndigoPlant()
+                new SmallIndigoPlant(),
+                new SmallIndigoPlant(),
+                new SmallSugarMill(),
+                new SmallSugarMill(),
+                new SmallSugarMill(),
+                new SmallSugarMill(),
+                // Large production buildings
+                new IndigoPlant(),
+                new IndigoPlant(),
+                new IndigoPlant(),
+                new SugarMill(),
+                new SugarMill(),
+                new SugarMill(),
+                new TobaccoStorage(),
+                new TobaccoStorage(),
+                new TobaccoStorage(),
+                new CoffeeRoaster(),
+                new CoffeeRoaster(),
+                new CoffeeRoaster(),
             };
         }
 
