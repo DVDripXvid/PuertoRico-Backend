@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
@@ -11,6 +12,7 @@ using PuertoRico.Engine.Domain.Misc;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Resources.Goods;
+using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
 
@@ -18,28 +20,42 @@ namespace PuertoRico.Engine.Domain
 {
     public class Game
     {
-        public PlantationDeck PlantationDeck { get; }
-        public List<IBuilding> Buildings { get; }
-        public int PlayerCount { get; }
-        public Stack<Colonist> Colonists { get; }
-        public Stack<Quarry> Quarries { get; }
+        public string Id { get; }
+        public string Name { get; }
+        public PlantationDeck PlantationDeck { get; private set; }
+        public List<IBuilding> Buildings { get; private set; }
+        public Stack<Colonist> Colonists { get; private set; }
+        public Stack<Quarry> Quarries { get; private set; }
         public List<IPlayer> Players { get; }
-        public IPlayer CurrentPlayer { get; private set; }
-        public ColonistsShip ColonistsShip { get; }
+        public IPlayer CurrentRoleOwnerPlayer { get; private set; }
+        public ColonistsShip ColonistsShip { get; private set; }
         public TradeHouse TradeHouse { get; } = new TradeHouse();
-        public List<IGood> Goods { get; }
-        public List<CargoShip> CargoShips { get; }
-        public List<VictoryPointChip> VictoryPointChips { get; }
+        public List<IGood> Goods { get; private set; }
+        public List<CargoShip> CargoShips { get; private set; }
+        public List<VictoryPointChip> VictoryPointChips { get; private set; }
+        public List<IRole> Roles { get; private set; }
+        public bool IsStarted { get; private set; }
+        public bool IsEnded { get; set; }
+        public int PlayerCount => Players.Count;
+        public bool IsFull => IsStarted || PlayerCount == GameConfig.MaxPlayer;
+        private bool _isLastYear;
+        private IPlayer _governor;
+        private readonly object _syncRoot = new object();
 
-        public Game(int playerCount) {
-            if (playerCount < GameConfig.MinPlayer || playerCount > GameConfig.MaxPlayer) {
+        public Game(string name = "DefaultGame") {
+            Name = name;
+            Players = new List<IPlayer>();
+            Id = Guid.NewGuid().ToString();
+        }
+
+        public void Start() {
+            if (PlayerCount < GameConfig.MinPlayer || PlayerCount > GameConfig.MaxPlayer) {
                 throw new InvalidOperationException("Invalid player count");
             }
+            
+            PlantationDeck = new PlantationDeck(PlayerCount);
 
-            PlayerCount = playerCount;
-            PlantationDeck = new PlantationDeck(playerCount);
-
-            var colonistCount = GameConfig.ColonistCount[playerCount];
+            var colonistCount = GameConfig.ColonistCount[PlayerCount];
             Colonists = new Stack<Colonist>(colonistCount);
             for (var i = 0; i < colonistCount; i++) {
                 Colonists.Push(new Colonist());
@@ -51,25 +67,66 @@ namespace PuertoRico.Engine.Domain
             }
 
             Buildings = InitializeBuildings();
-            Players = InitializePlayers(playerCount);
-            CurrentPlayer = Players.First();
+            _governor = Players.First();
+            CurrentRoleOwnerPlayer = _governor;
             ColonistsShip = new ColonistsShip(this);
             Goods = InitializeGoods();
-            CargoShips = InitializeCargoShips(playerCount);
-            VictoryPointChips = InitializeVictoryPointChips(playerCount);
+            CargoShips = InitializeCargoShips(PlayerCount);
+            VictoryPointChips = InitializeVictoryPointChips(PlayerCount);
+            Roles = InitializeRoles(PlayerCount, this);
+
+            IsStarted = true;
+        }
+
+        public void Join(IPlayer player) {
+            lock (_syncRoot) {
+                if (IsFull) {
+                    throw new InvalidOperationException("This game is full");
+                }
+                Players.Add(player);   
+            }
+        }
+
+        public void Leave(IPlayer player) {
+            lock (_syncRoot) {
+                if (IsStarted) {
+                    throw new InvalidOperationException("Game already started"); 
+                }
+                if (!Players.Remove(player)) {
+                    throw new InvalidOperationException("Player not in game");
+                }
+            }
         }
 
         public void MoveToNextPlayer() {
-            CurrentPlayer.Role.CleanUp();
-            CurrentPlayer = GetNextPlayerTo(CurrentPlayer);
+            CurrentRoleOwnerPlayer.Role.CleanUp();
+            CurrentRoleOwnerPlayer = GetNextPlayerTo(CurrentRoleOwnerPlayer);
+            if (CurrentRoleOwnerPlayer == _governor) {
+                StartNewYear();
+            }
+        }
+
+        public void SendShouldFinishSignal() {
+            _isLastYear = true;
+        }
+
+        private void StartNewYear() {
+            if (_isLastYear) {
+                IsEnded = true;
+                return;
+            }
+            Roles.ForEach(role => role.AddOneDoubloon());
+            Players.ForEach(p => p.PutBackRole(this));
+            _governor = GetNextPlayerTo(_governor);
+            CurrentRoleOwnerPlayer = _governor;
         }
 
         public HashSet<ActionType> GetAvailableActionTypes(IPlayer player) {
-            if (player == CurrentPlayer && player.Role == null) {
+            if (player == CurrentRoleOwnerPlayer && player.Role == null) {
                 return new HashSet<ActionType> {ActionType.SelectRole};
             }
 
-            return CurrentPlayer.Role.GetAvailableActionTypes(player);
+            return CurrentRoleOwnerPlayer.Role.GetAvailableActionTypes(player);
         }
 
         public void ForEachPlayerStartWith(IPlayer initPlayer, Action<IPlayer> action) {
@@ -86,6 +143,26 @@ namespace PuertoRico.Engine.Domain
                 ? 0
                 : indexOfCurrentPlayer + 1;
             return Players[indexOfNextPlayer];
+        }
+
+        private static List<IRole> InitializeRoles(int playerCount, Game game) {
+            var roles = new List<IRole> {
+                new Builder(game),
+                new Captain(game),
+                new Craftsman(game),
+                new Mayor(game),
+                new Settler(game),
+                new Trader(game),
+            };
+            if (playerCount > 3) {
+                roles.Add(new Prospector(game));
+            }
+
+            if (playerCount > 4) {
+                roles.Add(new Prospector(game));
+            }
+
+            return roles;
         }
 
         private static List<IBuilding> InitializeBuildings() {
@@ -144,15 +221,6 @@ namespace PuertoRico.Engine.Domain
                 new CoffeeRoaster(),
                 new CoffeeRoaster(),
             };
-        }
-
-        private static List<IPlayer> InitializePlayers(int playerCount) {
-            var players = new List<IPlayer>();
-            for (var i = 0; i < playerCount; i++) {
-                players.Add(new Player.Player());
-            }
-
-            return players;
         }
 
         private static List<IGood> InitializeGoods() {

@@ -7,9 +7,10 @@ namespace PuertoRico.Engine.Domain.Misc
 {
     public class CargoShip
     {
+        public GoodType? GoodType { get; private set; }
+        public int GoodCount => _goods.Count;
         public int Capacity { get; }
         private readonly List<IGood> _goods;
-        private GoodType? _goodType;
 
         public CargoShip(int capacity) {
             Capacity = capacity;
@@ -29,7 +30,7 @@ namespace PuertoRico.Engine.Domain.Misc
         }
 
         public bool HasGoodType(GoodType goodType) {
-            return !IsEmpty() && _goodType == goodType;
+            return !IsEmpty() && GoodType == goodType;
         }
 
         public bool CanBeLoaded(GoodType goodType) {
@@ -40,7 +41,7 @@ namespace PuertoRico.Engine.Domain.Misc
             if (goodsToLoad.Count > 0 && CanBeLoaded(goodsToLoad.First().Type)) {
                 var barrelCount = Math.Min(Capacity - _goods.Count, goodsToLoad.Count);
                 _goods.AddRange(goodsToLoad.Take(barrelCount));
-                _goodType = goodsToLoad.First().Type;
+                GoodType = goodsToLoad.First().Type;
                 return barrelCount;
             }
 

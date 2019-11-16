@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using PuertoRico.Engine.Gameplay;
 using PuertoRico.Engine.SignalR;
+using PuertoRico.Engine.Stores;
+using PuertoRico.Engine.Stores.InMemory;
 
 namespace PuertoRico.Engine
 {
@@ -26,11 +20,12 @@ namespace PuertoRico.Engine
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddAuthentication(AzureADB2CDefaults.BearerAuthenticationScheme)
-                .AddAzureADB2CBearer(options => Configuration.Bind("AzureAdB2C", options));
+
+            services.AddTransient<IGameService, GameService>();
+            services.AddSingleton<IGameStore, InMemoryGameStore>();
 
             services.AddMvc();
-            services.AddSignalR().AddAzureSignalR();
+            AddSignalR(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,12 +33,16 @@ namespace PuertoRico.Engine
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
+            
+            UseSignalR(app);
+        }
 
-            app.UseHttpsRedirection();
+        protected virtual void AddSignalR(IServiceCollection services) {
+            services.AddSignalR()
+                .AddAzureSignalR();
+        }
 
-            app.UseAuthentication();
-            app.UseAuthorization();
-
+        protected virtual void UseSignalR(IApplicationBuilder app) {
             app.UseAzureSignalR(routes =>
             {
                 routes.MapHub<GameHub>("/game");

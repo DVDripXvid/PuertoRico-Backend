@@ -19,12 +19,12 @@ namespace PuertoRico.Engine.Domain.Player
         List<IGood> Goods { get; }
         int Doubloons { get; set; }
         string UserId { get; }
-
         void Build(IBuilding building);
         void Plant(ITile tile);
         void AddColonist(Colonist colonist);
         void AddVictoryPointChips(IEnumerable<VictoryPointChip> victoryPointChips);
         void AddGoods(IEnumerable<IGood> goods);
-        void SelectRole(IRole role);
+        void SelectRole(IRole role, Game game);
+        void PutBackRole(Game game);
     }
 }

@@ -97,7 +97,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             CanExecuteActionOnce(action, RoleOwner);
             Role.CleanUp();
             var player = Game.GetNextPlayerTo(RoleOwner);
-            player.SelectRole(Role);
+            player.SelectRole(Role, Game);
             CanExecuteActionOnce(action, player);
         }
 
@@ -106,7 +106,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             var hacienda = new Hacienda();
             hacienda.AddWorker(new Colonist());
             player.Build(hacienda);
-            player.SelectRole(Role);
+            player.SelectRole(Role, Game);
         }
     }
 }

@@ -4,6 +4,7 @@ using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Misc;
 using PuertoRico.Engine.Domain.Player;
+using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Exceptions;
 
@@ -228,6 +229,12 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             var vpList = Game.VictoryPointChips.Take(vpCount).ToList();
+            if (vpList.Count < vpCount) {
+                Game.SendShouldFinishSignal();
+                while (vpList.Count < vpCount) {
+                    vpList.Add(new VictoryPointChip());
+                }
+            }
             player.VictoryPointChips.AddRange(vpList);
             Game.VictoryPointChips.RemoveRange(0, vpList.Count);
         }

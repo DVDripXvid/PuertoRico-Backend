@@ -59,6 +59,9 @@ namespace PuertoRico.Engine.Domain.Roles
             player.Doubloons -= price;
             Game.Buildings.Remove(building);
             player.Build(building);
+            if (player.Buildings.IsFull()) {
+                Game.SendShouldFinishSignal();
+            }
 
             if (player.Buildings.ContainsWorkingOfType<University>()) {
                 if (Game.Colonists.Count > 0) {

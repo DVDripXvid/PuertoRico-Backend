@@ -7,13 +7,14 @@ namespace PuertoRico.Engine.Domain.Misc
 {
     public class ColonistsShip
     {
-        public int Capacity { get; private set; }
-
+        public int ColonistCount => _colonists.Count;
+        
+        private int _capacity;
         private readonly Stack<Colonist> _colonists;
 
         public ColonistsShip(Game game) {
-            Capacity = game.PlayerCount;
-            _colonists = new Stack<Colonist>(Capacity);
+            _capacity = game.PlayerCount;
+            _colonists = new Stack<Colonist>(_capacity);
             Refill(game);
         }
 
@@ -22,7 +23,7 @@ namespace PuertoRico.Engine.Domain.Misc
                 .SelectMany(p => p.Buildings)
                 .Select(b => b.WorkerCapacity - b.Workers.Count)
                 .Sum();
-            Capacity =  Math.Max(game.PlayerCount, sumOfAvailableBuildingSlots);
+            _capacity =  Math.Max(game.PlayerCount, sumOfAvailableBuildingSlots);
             Refill(game);
         }
 
@@ -35,7 +36,11 @@ namespace PuertoRico.Engine.Domain.Misc
         }
         
         private void Refill(Game game) {
-            while (_colonists.Count < Capacity && game.Colonists.Count > 0) {
+            while (_colonists.Count < _capacity) {
+                if (game.Colonists.Count == 0) {
+                    game.SendShouldFinishSignal();
+                    break;
+                }
                 _colonists.Push(game.Colonists.Pop());
             }
         }

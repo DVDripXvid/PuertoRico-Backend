@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
@@ -16,13 +17,17 @@ namespace PuertoRico.Engine.Test.Domain.Roles
 
         public BaseRoleTest() {
             DoubloonsOnRole = 3;
-            Game = new Game(3);
+            Game = new Game();
+            Game.Join(new Player("user1"));
+            Game.Join(new Player("user2"));
+            Game.Join(new Player("user3"));
+            Game.Start();
             Role = (T)Activator.CreateInstance(typeof(T), Game);
             for (var i = 0; i < DoubloonsOnRole; i++) {
                 Role.AddOneDoubloon();
             }
-            RoleOwner = Game.CurrentPlayer;
-            RoleOwner.SelectRole(Role);
+            RoleOwner = Game.CurrentRoleOwnerPlayer;
+            RoleOwner.SelectRole(Role, Game);
         }
 
         [Fact]
@@ -67,7 +72,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
         }
 
         protected void ReselectRole() {
-            RoleOwner.SelectRole(Role);
+            RoleOwner.SelectRole(Role, Game);
         }
 
     }

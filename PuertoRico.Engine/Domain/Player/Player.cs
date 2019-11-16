@@ -49,9 +49,21 @@ namespace PuertoRico.Engine.Domain.Player
             Goods.AddRange(goods);
         }
 
-        public void SelectRole(IRole role) {
+        public void SelectRole(IRole role, Game game) {
+            if (Role != null) {
+                throw new InvalidOperationException("Cannot select a new role before putting the current back");
+            }
+            game.Roles.Remove(role);
             role.OnSelect(this);
             Role = role;
+        }
+
+        public void PutBackRole(Game game) {
+            if (Role != null) {
+                throw new InvalidOperationException("Player has no role");
+            }
+            game.Roles.Add(Role);
+            Role = null;
         }
     }
 }
