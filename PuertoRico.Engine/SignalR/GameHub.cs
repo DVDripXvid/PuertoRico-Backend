@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
+using PuertoRico.Engine.DTOs;
+using PuertoRico.Engine.Events;
 using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Gameplay;
 using PuertoRico.Engine.Stores;
@@ -15,37 +18,84 @@ namespace PuertoRico.Engine.SignalR
     {
         private readonly IGameService _gameService;
         private readonly IGameStore _gameStore;
+        private const string LobbyGroup = "Lobby"; 
 
         public GameHub(IGameService gameService, IGameStore gameStore) {
             _gameService = gameService;
             _gameStore = gameStore;
         }
 
-        public void CreateGame(string name) {
+        public override async Task OnConnectedAsync()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
+            var games = _gameStore.FindByUserId(GetUserId()).ToList();
+            foreach (var game in games)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
+                if (game.IsStarted)
+                {
+                    var gameChangedEvent = new GameChangedEvent
+                    {
+                        Game = new GameDto(game)
+                    };
+                    await Clients.Caller.SendAsync("gameChanged", gameChangedEvent);
+                }
+            }
+        }
+
+        public async Task CreateGame(string name) {
             var player = CreatePlayerForCurrentUser();
             var game = new Game(name);
             game.Join(player);
-            //TODO: raise created event
+            await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
+            var gameCreatedEvent = new GameCreatedEvent
+            {
+                GameId = game.Id,
+                GameName = game.Name,
+                CreatedBy = new PlayerDto(GetUserName(), player)
+            };
+            await Clients.Group(LobbyGroup).SendAsync("gameCreated", gameCreatedEvent);
         }
 
-        public void JoinGame(string gameId) {
+        public async Task JoinGame(string gameId) {
             var player = CreatePlayerForCurrentUser();
             var game = _gameStore.FindById(gameId);
             game.Join(player);
-            //TODO: raise joined event
+            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+            var joinedEvent = new PlayerJoinedEvent
+            {
+                Player = new PlayerDto(GetUserName(), player),
+                GameId = gameId
+            };
+            await Clients.Group(gameId).SendAsync("playerJoined", joinedEvent);
         }
 
-        public void LeaveGame(string gameId) {
+        public async Task LeaveGame(string gameId) {
             var game = _gameStore.FindById(gameId);
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
-            //TODO: raise left event
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+            var leftEvent = new PlayerLeftEvent()
+            {
+                Player = new PlayerDto(GetUserName(), player),
+                GameId = gameId
+            };
+            await Clients.Group(gameId).SendAsync("playerLeft", leftEvent);
         }
 
-        public void StartGame(string gameId) {
+        public async Task StartGame(string gameId) {
             var game = _gameStore.FindById(gameId);
             game.Start();
-            // TODO: raise started event
+            var startedEvent = new GameStartedEvent
+            {
+                GameId = gameId
+            };
+            await Clients.Group(LobbyGroup).SendAsync("gameStarted", startedEvent);
+            var changedEvent = new GameChangedEvent
+            {
+                Game = new GameDto(game)
+            };
+            await Clients.Group(gameId).SendAsync("gameChanged", game);
         }
 
         public async Task Build(string gameId, Build build) {
@@ -67,6 +117,11 @@ namespace PuertoRico.Engine.SignalR
 
         private string GetUserId() {
             return Context.UserIdentifier;
+        }
+
+        private string GetUserName()
+        {
+            return Context.User.FindFirstValue(ClaimTypes.Name) ?? Context.UserIdentifier;
         }
     }
 }

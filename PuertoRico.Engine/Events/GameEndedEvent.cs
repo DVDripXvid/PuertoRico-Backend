@@ -2,6 +2,6 @@
 {
     public class GameEndedEvent
     {
-        
+        public string GameId { get; set; }
     }
 }

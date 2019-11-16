@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Text.Json;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.Events;
 using PuertoRico.Engine.SignalR;
 
 namespace PuertoRico.TestClient
@@ -18,15 +22,16 @@ namespace PuertoRico.TestClient
             var gameHub = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/game")
                 .Build();
+
+            gameHub.On<GameCreatedEvent>("gameCreated", LogJson);
             await gameHub.StartAsync();
-            var asd = await gameHub.InvokeAsync<Game>("asd"); 
-            await gameHub.InvokeAsync("ExecuteAction", new {
-                GameId = "asd",
-                Action = new {
-                    ActionType = "Build",
-                    BuildingIndex = 5,
-                }
-            });
+            await gameHub.SendAsync("createGame", "testGame");
+        }
+
+        private static void LogJson(object any)
+        {
+            var json = JsonSerializer.Serialize(any);
+            Console.WriteLine(json);
         }
     }
 }
