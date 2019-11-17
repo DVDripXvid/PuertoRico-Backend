@@ -19,6 +19,7 @@ namespace PuertoRico.Engine.Domain.Player
         List<IGood> Goods { get; }
         int Doubloons { get; set; }
         string UserId { get; }
+        string Username { get; }
         void Build(IBuilding building);
         void Plant(ITile tile);
         void AddColonist(Colonist colonist);

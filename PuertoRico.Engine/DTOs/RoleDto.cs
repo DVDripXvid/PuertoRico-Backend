@@ -8,10 +8,16 @@ namespace PuertoRico.Engine.DTOs
         public int Doubloons { get; set; }
         public int Index { get; set; }
 
-        public RoleDto(IRole role, int index) {
-            Name = role.Name;
-            Doubloons = role.StackedDoubloons;
-            Index = index;
+        public static RoleDto Create(IRole role, int index) {
+            if (role == null) {
+                return null;
+            }
+
+            return new RoleDto {
+                Doubloons = role.StackedDoubloons,
+                Name = role.Name,
+                Index = index,
+            };
         }
     }
 }

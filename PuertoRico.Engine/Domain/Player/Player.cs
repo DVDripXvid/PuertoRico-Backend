@@ -19,14 +19,17 @@ namespace PuertoRico.Engine.Domain.Player
         public int Doubloons { get; set; }
         public List<IGood> Goods { get; } = new List<IGood>();
         public string UserId { get; }
+        public string Username { get; }
 
         [Obsolete]
         public Player() {
             UserId = Guid.NewGuid().ToString();
+            Username = UserId;
         }
 
-        public Player(string userId) {
+        public Player(string userId, string username) {
             UserId = userId;
+            Username = username;
         }
 
         public void Build(IBuilding building) {

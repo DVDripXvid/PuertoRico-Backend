@@ -7,9 +7,11 @@ namespace PuertoRico.Engine.DTOs
         public string Name { get; set; }
         public int Index { get; set; }
 
-        public TileDto(ITile tile, int index) {
-            Name = tile.Name;
-            Index = index;
+        public static TileDto Create(ITile tile, int index) {
+            return new TileDto {
+                Name = tile.Name,
+                Index = index,
+            };
         }
     }
 }

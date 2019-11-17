@@ -9,10 +9,12 @@ namespace PuertoRico.Engine.DTOs
         public int Capacity { get; set; }
         public int GoodCount { get; set; }
 
-        public CargoShipDto(CargoShip cargoShip) {
-            GoodType = cargoShip.GoodType;
-            Capacity = cargoShip.Capacity;
-            GoodCount = cargoShip.GoodCount;
+        public static CargoShipDto Create(CargoShip cargoShip) {
+            return new CargoShipDto {
+                GoodType = cargoShip.GoodType,
+                Capacity = cargoShip.Capacity,
+                GoodCount = cargoShip.GoodCount,
+            };
         }
     }
 }

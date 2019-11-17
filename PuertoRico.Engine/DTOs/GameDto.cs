@@ -27,40 +27,39 @@ namespace PuertoRico.Engine.DTOs
         public int VictoryPoints { get; set; }
         public ICollection<RoleDto> SelectableRoles { get; set; }
 
-        public GameDto(Game game) {
-            Id = game.Id;
-            Name = game.Name;
-            VisiblePlantations = game.PlantationDeck.Drawable
-                .Select((p, idx) => new TileDto(p, idx))
-                .ToList();
-            Buildings = game.Buildings
-                .Select((b, idx) => new BuildingDto(b, idx))
-                .ToList();
-            ColonistsCount = game.Colonists.Count;
-            QuarryCount = game.Quarries.Count;
-            //TODO: set username
-            Players = game.Players
-                .Select(p => new PlayerDto(p.UserId, p))
-                .ToList();
-            var player = game.CurrentRoleOwnerPlayer.Role == null
+        public static GameDto Create(Game game) {
+            var currentPlayer = game.CurrentRoleOwnerPlayer.Role == null
                 ? game.CurrentRoleOwnerPlayer
                 : game.CurrentRoleOwnerPlayer.Role.CurrentPlayer;
-            CurrentPlayer = new PlayerDto(player.UserId, player);
-            CurrentRole = new RoleDto(game.CurrentRoleOwnerPlayer.Role, -1);
-            ColonistsShip = new ColonistsShipDto(game.ColonistsShip);
-            TradeHouse = new TradeHouseDto(game.TradeHouse);
-            CornCount = game.Goods.Count(g => g.Type == GoodType.Corn);
-            IndigoCount = game.Goods.Count(g => g.Type == GoodType.Indigo);
-            SugarCount = game.Goods.Count(g => g.Type == GoodType.Sugar);
-            TobaccoCount = game.Goods.Count(g => g.Type == GoodType.Tobacco);
-            CoffeeCount = game.Goods.Count(g => g.Type == GoodType.Coffee);
-            CargoShips = game.CargoShips
-                .Select(cs => new CargoShipDto(cs))
-                .ToList();
-            VictoryPoints = game.VictoryPointChips.Count;
-            SelectableRoles = game.Roles
-                .Select((r, idx) => new RoleDto(r, idx))
-                .ToList();
+            return new GameDto {
+                Id = game.Id,
+                Name = game.Name,
+                VisiblePlantations = game.PlantationDeck.Drawable
+                    .Select(TileDto.Create)
+                    .ToList(),
+                Buildings = game.Buildings
+                    .Select(BuildingDto.Create)
+                    .ToList(),
+                ColonistsCount = game.Colonists.Count,
+                QuarryCount = game.Quarries.Count,
+                Players = game.Players.Select(PlayerDto.Create).ToList(),
+                CurrentPlayer = PlayerDto.Create(currentPlayer),
+                CurrentRole = RoleDto.Create(game.CurrentRoleOwnerPlayer.Role, -1),
+                ColonistsShip = ColonistsShipDto.Create(game.ColonistsShip),
+                TradeHouse = TradeHouseDto.Create(game.TradeHouse),
+                CornCount = game.Goods.Count(g => g.Type == GoodType.Corn),
+                IndigoCount = game.Goods.Count(g => g.Type == GoodType.Indigo),
+                SugarCount = game.Goods.Count(g => g.Type == GoodType.Sugar),
+                TobaccoCount = game.Goods.Count(g => g.Type == GoodType.Tobacco),
+                CoffeeCount = game.Goods.Count(g => g.Type == GoodType.Coffee),
+                CargoShips = game.CargoShips
+                    .Select(CargoShipDto.Create)
+                    .ToList(),
+                VictoryPoints = game.VictoryPointChips.Count,
+                SelectableRoles = game.Roles
+                    .Select(RoleDto.Create)
+                    .ToList(),
+            };
         }
     }
 }

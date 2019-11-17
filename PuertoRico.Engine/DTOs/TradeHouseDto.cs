@@ -8,10 +8,12 @@ namespace PuertoRico.Engine.DTOs
     {
         public ICollection<GoodDto> Goods { get; set; }
 
-        public TradeHouseDto(TradeHouse tradeHouse) {
-            Goods = tradeHouse.Goods.
-                Select(g => new GoodDto(g.Type))
+        public static TradeHouseDto Create(TradeHouse tradeHouse) {
+            var goods = tradeHouse.Goods.Select(g => GoodDto.Create(g.Type))
                 .ToList();
+            return new TradeHouseDto {
+                Goods = goods
+            };
         }
     }
 }

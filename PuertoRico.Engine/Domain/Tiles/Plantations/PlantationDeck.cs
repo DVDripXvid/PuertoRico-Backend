@@ -31,7 +31,7 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
             _deck.AddRange(InitPlantationsForType<CornPlantation>(Config[typeof(CornPlantation)]));
             _deck.AddRange(InitPlantationsForType<TobaccoPlantation>(Config[typeof(TobaccoPlantation)]));
             _deck.AddRange(InitPlantationsForType<CoffeePlantation>(Config[typeof(CoffeePlantation)]));
-            _deck.Shuffle(Shuffler);
+            _deck = _deck.Shuffle(Shuffler);
 
             _visibleCount = playerCount + 1;
             Drawable = new IPlantation[_visibleCount];

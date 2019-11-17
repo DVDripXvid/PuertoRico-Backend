@@ -10,12 +10,14 @@ namespace PuertoRico.Engine.DTOs
         public int MaxDiscountByQuarry { get; set; }
         public int Index { get; set; }
 
-        public BuildingDto(IBuilding building, int index) {
-            Name = building.Name;
-            Cost = building.Cost;
-            VictoryPoint = building.VictoryPoint;
-            MaxDiscountByQuarry = building.MaxDiscountByQuarry;
-            Index = index;
+        public static BuildingDto Create(IBuilding building, int index) {
+            return new BuildingDto {
+                Name = building.Name,
+                Cost = building.Cost,
+                VictoryPoint = building.VictoryPoint,
+                MaxDiscountByQuarry = building.MaxDiscountByQuarry,
+                Index = index,
+            };
         }
     }
 }

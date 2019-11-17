@@ -6,8 +6,10 @@ namespace PuertoRico.Engine.DTOs
     {
         public int ColonistsCount { get; set; }
 
-        public ColonistsShipDto(ColonistsShip colonistsShip) {
-            ColonistsCount = colonistsShip.ColonistCount;
+        public static ColonistsShipDto Create(ColonistsShip colonistsShip) {
+            return new ColonistsShipDto {
+                ColonistsCount = colonistsShip.ColonistCount
+            };
         }
     }
 }

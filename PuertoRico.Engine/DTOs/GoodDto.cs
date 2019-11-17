@@ -6,8 +6,10 @@ namespace PuertoRico.Engine.DTOs
     {
         public GoodType Type { get; set; }
 
-        public GoodDto(GoodType goodType) {
-            Type = goodType;
+        public static GoodDto Create(GoodType goodType) {
+            return new GoodDto {
+                Type = goodType
+            };
         }
     }
 }

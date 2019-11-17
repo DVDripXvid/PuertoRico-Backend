@@ -18,25 +18,21 @@ namespace PuertoRico.Engine.SignalR
     {
         private readonly IGameService _gameService;
         private readonly IGameStore _gameStore;
-        private const string LobbyGroup = "Lobby"; 
+        private const string LobbyGroup = "Lobby";
 
         public GameHub(IGameService gameService, IGameStore gameStore) {
             _gameService = gameService;
             _gameStore = gameStore;
         }
 
-        public override async Task OnConnectedAsync()
-        {
+        public override async Task OnConnectedAsync() {
             await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
             var games = _gameStore.FindByUserId(GetUserId()).ToList();
-            foreach (var game in games)
-            {
+            foreach (var game in games) {
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
-                if (game.IsStarted)
-                {
-                    var gameChangedEvent = new GameChangedEvent
-                    {
-                        Game = new GameDto(game)
+                if (game.IsStarted) {
+                    var gameChangedEvent = new GameChangedEvent {
+                        Game = GameDto.Create(game)
                     };
                     await Clients.Caller.SendAsync("gameChanged", gameChangedEvent);
                 }
@@ -46,13 +42,13 @@ namespace PuertoRico.Engine.SignalR
         public async Task CreateGame(string name) {
             var player = CreatePlayerForCurrentUser();
             var game = new Game(name);
+            _gameStore.Add(game);
             game.Join(player);
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
-            var gameCreatedEvent = new GameCreatedEvent
-            {
+            var gameCreatedEvent = new GameCreatedEvent {
                 GameId = game.Id,
                 GameName = game.Name,
-                CreatedBy = new PlayerDto(GetUserName(), player)
+                CreatedBy = PlayerDto.Create(player)
             };
             await Clients.Group(LobbyGroup).SendAsync("gameCreated", gameCreatedEvent);
         }
@@ -62,9 +58,8 @@ namespace PuertoRico.Engine.SignalR
             var game = _gameStore.FindById(gameId);
             game.Join(player);
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-            var joinedEvent = new PlayerJoinedEvent
-            {
-                Player = new PlayerDto(GetUserName(), player),
+            var joinedEvent = new PlayerJoinedEvent {
+                Player = PlayerDto.Create(player),
                 GameId = gameId
             };
             await Clients.Group(gameId).SendAsync("playerJoined", joinedEvent);
@@ -75,9 +70,8 @@ namespace PuertoRico.Engine.SignalR
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
-            var leftEvent = new PlayerLeftEvent()
-            {
-                Player = new PlayerDto(GetUserName(), player),
+            var leftEvent = new PlayerLeftEvent() {
+                Player = PlayerDto.Create(player),
                 GameId = gameId
             };
             await Clients.Group(gameId).SendAsync("playerLeft", leftEvent);
@@ -86,16 +80,14 @@ namespace PuertoRico.Engine.SignalR
         public async Task StartGame(string gameId) {
             var game = _gameStore.FindById(gameId);
             game.Start();
-            var startedEvent = new GameStartedEvent
-            {
+            var startedEvent = new GameStartedEvent {
                 GameId = gameId
             };
             await Clients.Group(LobbyGroup).SendAsync("gameStarted", startedEvent);
-            var changedEvent = new GameChangedEvent
-            {
-                Game = new GameDto(game)
+            var changedEvent = new GameChangedEvent {
+                Game = GameDto.Create(game)
             };
-            await Clients.Group(gameId).SendAsync("gameChanged", game);
+            await Clients.Group(gameId).SendAsync("gameChanged", changedEvent);
         }
 
         public async Task Build(string gameId, Build build) {
@@ -106,21 +98,22 @@ namespace PuertoRico.Engine.SignalR
         private async Task ExecuteRoleAction(string gameId, IAction build) {
             var game = _gameStore.FindById(gameId);
             await _gameService.ExecuteRoleAction(game, GetUserId(), build);
+            //TODO: remove this and use action specific events
+            await Clients.Groups(gameId).SendAsync("gameChanged", new GameChangedEvent {Game = GameDto.Create(game)});
             if (game.IsEnded) {
                 //TODO: raise game ended event
             }
         }
 
         private IPlayer CreatePlayerForCurrentUser() {
-            return new Player(GetUserId());
+            return new Player(GetUserId(), GetUserName());
         }
 
         private string GetUserId() {
-            return Context.UserIdentifier;
+            return Context.UserIdentifier ?? throw new UnauthorizedAccessException("Cannot obtain user identifier");
         }
 
-        private string GetUserName()
-        {
+        private string GetUserName() {
             return Context.User.FindFirstValue(ClaimTypes.Name) ?? Context.UserIdentifier;
         }
     }

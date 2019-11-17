@@ -16,22 +16,24 @@ namespace PuertoRico.Engine.DTOs
         public ICollection<GoodDto> Goods { get; set; }
         public int Doubloons { get; set; }
 
-        public PlayerDto(string userName, IPlayer player) {
-            UserName = userName;
-            UserId = player.UserId;
-            Buildings = player.Buildings
-                .Select((b, idx) => new BuildingDto(b, idx))
-                .ToList();
-            Tiles = player.Tiles
-                .Select((t, idx) => new TileDto(t, idx))
-                .ToList();
-            IdleColonistCount = player.IdleColonists.Count;
-            VictoryPoints = player.VictoryPointChips.Count;
-            Role = new RoleDto(player.Role, -1);
-            Goods = player.Goods
-                .Select(g => new GoodDto(g.Type))
-                .ToList();
-            Doubloons = player.Doubloons;
+        public static PlayerDto Create(IPlayer player) {
+            return new PlayerDto {
+                UserName = player.Username,
+                UserId = player.UserId,
+                Buildings = player.Buildings
+                    .Select(BuildingDto.Create)
+                    .ToList(),
+                Tiles = player.Tiles
+                    .Select(TileDto.Create)
+                    .ToList(),
+                IdleColonistCount = player.IdleColonists.Count,
+                VictoryPoints = player.VictoryPointChips.Count,
+                Role = RoleDto.Create(player.Role, -1),
+                Goods = player.Goods
+                    .Select(g => GoodDto.Create(g.Type))
+                    .ToList(),
+                Doubloons = player.Doubloons,
+            };
         }
     }
 }
