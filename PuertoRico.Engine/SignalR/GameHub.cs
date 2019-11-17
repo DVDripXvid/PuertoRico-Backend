@@ -101,8 +101,16 @@ namespace PuertoRico.Engine.SignalR
             //TODO: remove this and use action specific events
             await Clients.Groups(gameId).SendAsync("gameChanged", new GameChangedEvent {Game = GameDto.Create(game)});
             if (game.IsEnded) {
-                //TODO: raise game ended event
+                await AfterGameEnded(game);
             }
+        }
+
+        private async Task AfterGameEnded(Game game) {
+            var endedEvent = new GameEndedEvent {
+                GameId = game.Id
+            };
+            await Clients.Groups(game.Id).SendAsync("gameEnded", endedEvent);
+            _gameStore.Remove(game.Id);
         }
 
         private IPlayer CreatePlayerForCurrentUser() {
