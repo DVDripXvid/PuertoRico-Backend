@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 
-namespace PuertoRico.Engine.Gameplay
+namespace PuertoRico.Engine.Services
 {
     public interface IGameService
     {

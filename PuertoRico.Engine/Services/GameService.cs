@@ -5,7 +5,7 @@ using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Exceptions;
 using PuertoRico.Engine.Extensions;
 
-namespace PuertoRico.Engine.Gameplay
+namespace PuertoRico.Engine.Services
 {
     public class GameService : IGameService
     {

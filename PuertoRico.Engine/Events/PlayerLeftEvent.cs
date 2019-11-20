@@ -2,7 +2,7 @@
 
 namespace PuertoRico.Engine.Events
 {
-    public class PlayerLeftEvent
+    public class PlayerLeftEvent : IGameEvent
     {
         public string GameId { get; set; }
         public PlayerDto Player { get; set; }

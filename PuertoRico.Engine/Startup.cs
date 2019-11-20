@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PuertoRico.Engine.Gameplay;
+using PuertoRico.Engine.Services;
 using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.Stores;
 using PuertoRico.Engine.Stores.InMemory;
@@ -20,11 +20,13 @@ namespace PuertoRico.Engine
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddMvc();
+            services.AddHttpContextAccessor();
 
             services.AddTransient<IGameService, GameService>();
             services.AddSingleton<IGameStore, InMemoryGameStore>();
+            services.AddSingleton<IUserService, UserService>();
 
-            services.AddMvc();
             AddSignalR(services);
         }
 
@@ -33,7 +35,7 @@ namespace PuertoRico.Engine
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             UseSignalR(app);
         }
 
@@ -43,10 +45,7 @@ namespace PuertoRico.Engine
         }
 
         protected virtual void UseSignalR(IApplicationBuilder app) {
-            app.UseAzureSignalR(routes =>
-            {
-                routes.MapHub<GameHub>("/game");
-            });
+            app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
         }
     }
 }

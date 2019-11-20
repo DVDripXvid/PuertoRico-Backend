@@ -42,22 +42,22 @@ namespace PuertoRico.TestClient
                 .AddJsonProtocol()
                 .Build();
             
-            gameHub.On<GameCreatedEvent>("gameCreated", ev => {
+            gameHub.On<GameCreatedEvent>("GameCreated", ev => {
                 LogJson(ev);
                 ++_playerCount;
-                gameHub.SendAsync("joinGame", ev.GameId);
-                gameHub.SendAsync("joinGame", ev.GameId);
+                gameHub.InvokeAsync("JoinGame", ev.GameId).Wait();
+                gameHub.InvokeAsync("JoinGame", ev.GameId).Wait();
             });
-            gameHub.On<PlayerJoinedEvent>("playerJoined", ev => {
+            gameHub.On<PlayerJoinedEvent>("PlayerJoined", ev => {
                 LogJson(ev);
                 if (++_playerCount >= 3) {
-                    gameHub.SendAsync("startGame", ev.GameId);
+                    gameHub.InvokeAsync("StartGame", ev.GameId).Wait();
                 }
             });
-            gameHub.On<GameStartedEvent>("gameStarted", LogJson);
-            gameHub.On<GameChangedEvent>("gameChanged", LogJson);
+            gameHub.On<GameStartedEvent>("GameStarted", LogJson);
+            gameHub.On<GameChangedEvent>("GameChanged", LogJson);
             await gameHub.StartAsync();
-            await gameHub.SendAsync("createGame", "testGame");
+            await gameHub.InvokeAsync("CreateGame", "testGame");
         }
 
         private static void LogJson(object any)

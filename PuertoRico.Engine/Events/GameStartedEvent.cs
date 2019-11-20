@@ -2,7 +2,7 @@
 
 namespace PuertoRico.Engine.Events
 {
-    public class GameStartedEvent
+    public class GameStartedEvent : IGameEvent
     {
         public string GameId { get; set; }
     }
