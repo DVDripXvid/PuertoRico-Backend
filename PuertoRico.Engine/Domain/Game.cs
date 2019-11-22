@@ -16,6 +16,7 @@ using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
+using PuertoRico.Engine.Exceptions;
 
 namespace PuertoRico.Engine.Domain
 {
@@ -129,10 +130,11 @@ namespace PuertoRico.Engine.Domain
         }
 
         public HashSet<ActionType> GetAvailableActionTypes(IPlayer player) {
-            if (player == CurrentRoleOwnerPlayer && player.Role == null) {
-                return new HashSet<ActionType> {ActionType.SelectRole};
+            if (CurrentRoleOwnerPlayer.Role == null) {
+                return player == CurrentRoleOwnerPlayer 
+                    ? new HashSet<ActionType> {ActionType.SelectRole} 
+                    : new HashSet<ActionType>();
             }
-
             return CurrentRoleOwnerPlayer.Role.GetAvailableActionTypes(player);
         }
 

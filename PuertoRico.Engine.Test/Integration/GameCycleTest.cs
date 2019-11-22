@@ -2,13 +2,11 @@
 using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Test.Integration.Helpers;
-using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace PuertoRico.Engine.Test.Integration
 {
-    public class RoleSelectionTest : TestBase
+    public class GameCycleTest : TestBase
     {
 
         [Fact]

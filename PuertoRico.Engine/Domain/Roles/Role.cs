@@ -15,7 +15,7 @@ namespace PuertoRico.Engine.Domain.Roles
         protected const string EndedPhase = "ended";
         public int StackedDoubloons { get; private set; }
         protected Game Game { get; }
-        
+
         protected Role(Game game) {
             Game = game;
         }
@@ -29,6 +29,7 @@ namespace PuertoRico.Engine.Domain.Roles
                 MoveToNextPlayer();
                 return;
             }
+
             var availableActionTypes = GetAvailableActionTypes(player);
             if (!availableActionTypes.Contains(action.ActionType)) {
                 throw new GameException($"{action.ActionType} is not available for role {Name}");
@@ -62,6 +63,7 @@ namespace PuertoRico.Engine.Domain.Roles
             if (availableActionTypes.Count == 0) {
                 throw new InvalidOperationException($"no available actions");
             }
+
             return availableActionTypes;
         }
 
@@ -82,7 +84,7 @@ namespace PuertoRico.Engine.Domain.Roles
                 Game.MoveToNextPlayer();
             }
             else {
-                CurrentPlayer = Game.GetNextPlayerTo(CurrentPlayer);   
+                CurrentPlayer = Game.GetNextPlayerTo(CurrentPlayer);
             }
         }
 

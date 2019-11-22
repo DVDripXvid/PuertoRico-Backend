@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.DTOs;
 using PuertoRico.Engine.Events;
 using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace PuertoRico.Engine.Test.Integration
 {
@@ -46,17 +45,20 @@ namespace PuertoRico.Engine.Test.Integration
                 session3.JoinGame(ev.GameId).Wait();
             };
             await session1.CreateGame("3PlayerGame");
-            session1.PlayerJoinedSignal.WaitOne();
-            session1.PlayerJoinedSignal.WaitOne();
+            session1.PlayerJoinedSignal.WaitOne(5000);
+            session1.PlayerJoinedSignal.WaitOne(5000);
             Assert.NotNull(gameId);
             GameChangedEvent changedEvent = null;
             session1.GameChanged += ev => changedEvent = ev;
             await session1.StartGame(gameId);
-            //session1.GameChangedSignal.WaitOne();
             Assert.NotNull(changedEvent);
             Assert.Equal(3, changedEvent.Game.Players.Count);
             Assert.Equal(3, changedEvent.Game.Players.Select(p => p.UserId).Distinct().Count());
             return (gameId, session1, session2, session3);
+        }
+        
+        protected GameHubProxy GetCurrentSession(GameDto game) {
+            return Sessions[game.CurrentPlayer.UserId];
         }
 
         protected static async Task SelectRole(GameHubProxy session, string roleName) {

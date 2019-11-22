@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Exceptions;
 using Toore.Shuffling;
@@ -11,6 +12,7 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
     {
         public IPlantation[] Drawable { get; private set; }
         private readonly List<IPlantation> _deck;
+        private List<IPlantation> _discard = new List<IPlantation>();
         private readonly int _visibleCount;
 
         private static readonly IShuffler Shuffler = new FisherYatesShuffler(new RandomWrapper());
@@ -48,6 +50,9 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
         }
 
         public IPlantation DrawRandom() {
+            if (_deck.Count == 0) {
+                ReUseDiscardPile();
+            }
             var index = _random.Next(1, _deck.Count) - 1;
             var plantation = _deck[index];
             _deck.RemoveAt(index);
@@ -55,14 +60,30 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
         }
         
         public IPlantation DrawForType<T>() where T : IGood {
+            if (_deck.Count == 0) {
+                ReUseDiscardPile();
+            }
             var plantation = _deck.First(p => p.CanProduce<T>());
             _deck.Remove(plantation);
             return plantation;
         }
 
         public void DiscardAndDrawNew() {
+            foreach (var plantation in Drawable.Where(p => p != null)) {
+                _discard.Add(plantation);
+            }
+
+            if (_visibleCount > _deck.Count) {
+                ReUseDiscardPile();
+            }
             Drawable = _deck.Take(_visibleCount).ToArray();
-            _deck.RemoveRange(0, _visibleCount);
+            _deck.RemoveRange(0, Drawable.Length);
+        }
+
+        private void ReUseDiscardPile() {
+            _discard = _discard.Shuffle(Shuffler);
+            _deck.AddRange(_discard);
+            _discard.Clear();
         }
         
         private static IEnumerable<T> InitPlantationsForType<T>(int count) where T : IPlantation, new() {

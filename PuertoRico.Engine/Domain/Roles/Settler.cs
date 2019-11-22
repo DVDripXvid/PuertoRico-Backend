@@ -22,7 +22,8 @@ namespace PuertoRico.Engine.Domain.Roles
             switch (phase) {
                 case SelectTilePhase:
                     if ((HasPrivilege(player) || player.Buildings.ContainsWorkingOfType<ConstructionHut>())
-                        && Game.Quarries.Count > 0) {
+                        && Game.Quarries.Count > 0
+                        && !player.Tiles.IsFull()) {
                         actions.Add(ActionType.TakeQuarry);
                     }
 

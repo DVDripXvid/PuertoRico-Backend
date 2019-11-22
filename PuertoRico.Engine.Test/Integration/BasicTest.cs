@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using PuertoRico.Engine.Events;
-using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
 
 namespace PuertoRico.Engine.Test.Integration

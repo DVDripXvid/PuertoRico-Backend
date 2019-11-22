@@ -13,7 +13,7 @@ namespace PuertoRico.Engine.Services
     {
         public Task ExecuteRoleAction(Game game, string userId, IAction action) {
             var player = game.Players.WithUserId(userId);
-            lock (player) {
+            lock (game) {
                 if (game.CurrentRoleOwnerPlayer.Role == null) {
                     throw new GameException("No role selected for this turn");
                 }
@@ -32,7 +32,7 @@ namespace PuertoRico.Engine.Services
 
         public Task ExecuteSelectRole(Game game, string userId, SelectRole selectRole) {
             var player = game.Players.WithUserId(userId);
-            lock (player) {
+            lock (game) {
                 if (!game.GetAvailableActionTypes(player).Contains(ActionType.SelectRole)) {
                     throw new GameException("SelectRole not available");
                 }
@@ -48,7 +48,7 @@ namespace PuertoRico.Engine.Services
 
         public Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId) {
             var player = game.Players.WithUserId(userId);
-            lock (player) {
+            lock (game) {
                 return Task.FromResult<IEnumerable<ActionType>>(game.GetAvailableActionTypes(player));
             }
         }
