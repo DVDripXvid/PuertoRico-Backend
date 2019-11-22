@@ -57,12 +57,12 @@ namespace PuertoRico.Engine.Domain.Player
                 throw new InvalidOperationException("Cannot select a new role before putting the current back");
             }
             game.Roles.Remove(role);
-            role.OnSelect(this);
             Role = role;
+            role.OnSelect(this);
         }
 
         public void PutBackRole(Game game) {
-            if (Role != null) {
+            if (Role == null) {
                 throw new InvalidOperationException("Player has no role");
             }
             game.Roles.Add(Role);

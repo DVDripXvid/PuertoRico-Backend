@@ -19,7 +19,7 @@ namespace PuertoRico.Engine.Domain.Tiles
 
         public Colonist RemoveWorker() {
             if (Worker == null) {
-                throw new GameException($"{Name} already has no worker");
+                throw new GameException($"{Name} has no worker");
             }
 
             var worker = Worker;

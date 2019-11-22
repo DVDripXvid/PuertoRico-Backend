@@ -22,24 +22,19 @@ namespace PuertoRico.Engine.SignalR
         private readonly IUserService _userService;
         private const string LobbyGroup = "Lobby";
 
-        public GameHub(IGameService gameService, IGameStore gameStore, IUserService userService)
-        {
+        public GameHub(IGameService gameService, IGameStore gameStore, IUserService userService) {
             _gameService = gameService;
             _gameStore = gameStore;
             _userService = userService;
         }
 
-        public override async Task OnConnectedAsync()
-        {
+        public override async Task OnConnectedAsync() {
             await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
             var games = _gameStore.FindByUserId(GetUserId()).ToList();
-            foreach (var game in games)
-            {
+            foreach (var game in games) {
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
-                if (game.IsStarted)
-                {
-                    var gameChangedEvent = new GameChangedEvent
-                    {
+                if (game.IsStarted) {
+                    var gameChangedEvent = new GameChangedEvent {
                         Game = GameDto.Create(game)
                     };
                     await Clients.Caller.GameChanged(gameChangedEvent);
@@ -47,14 +42,12 @@ namespace PuertoRico.Engine.SignalR
             }
         }
 
-        public async Task CreateGame(string name)
-        {
+        public async Task CreateGame(string name) {
             var player = CreatePlayerForCurrentUser();
             var game = new Game(name);
             _gameStore.Add(game);
             game.Join(player);
-            var gameCreatedEvent = new GameCreatedEvent
-            {
+            var gameCreatedEvent = new GameCreatedEvent {
                 GameId = game.Id,
                 GameName = game.Name,
                 CreatedBy = PlayerDto.Create(player)
@@ -64,96 +57,128 @@ namespace PuertoRico.Engine.SignalR
             Console.WriteLine("asd");
         }
 
-        public async Task JoinGame(string gameId)
-        {
+        public async Task JoinGame(string gameId) {
             var player = CreatePlayerForCurrentUser();
             var game = _gameStore.FindById(gameId);
             game.Join(player);
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-            var joinedEvent = new PlayerJoinedEvent
-            {
+            var joinedEvent = new PlayerJoinedEvent {
                 Player = PlayerDto.Create(player),
                 GameId = gameId
             };
             await Clients.Group(gameId).PlayerJoined(joinedEvent);
         }
 
-        public async Task LeaveGame(string gameId)
-        {
+        public async Task LeaveGame(string gameId) {
             var game = _gameStore.FindById(gameId);
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
-            var leftEvent = new PlayerLeftEvent()
-            {
+            var leftEvent = new PlayerLeftEvent() {
                 Player = PlayerDto.Create(player),
                 GameId = gameId
             };
             await Clients.Group(gameId).PlayerLeft(leftEvent);
         }
 
-        public async Task StartGame(string gameId)
-        {
+        public async Task StartGame(string gameId) {
             var game = _gameStore.FindById(gameId);
             game.Start();
-            var startedEvent = new GameStartedEvent
-            {
+            var startedEvent = new GameStartedEvent {
                 GameId = gameId
             };
             await Clients.Group(LobbyGroup).GameStarted(startedEvent);
-            var changedEvent = new GameChangedEvent
-            {
+            var changedEvent = new GameChangedEvent {
                 Game = GameDto.Create(game)
             };
             await Clients.Group(gameId).GameChanged(changedEvent);
         }
 
-        public async Task Build(string gameId, Build build)
-        {
+        public async Task SelectRole(string gameId, SelectRole selectRole) {
+            var game = _gameStore.FindById(gameId);
+            await _gameService.ExecuteSelectRole(game, GetUserId(), selectRole);
+            //TODO: raise role selected event
+            var changedEvent = new GameChangedEvent {
+                Game = GameDto.Create(game)
+            };
+            await Clients.Group(gameId).GameChanged(changedEvent);
+        }
+
+        public async Task BonusProduction(string gameId, BonusProduction bonusProduction) {
+            await ExecuteRoleAction(gameId, bonusProduction);
+        }
+
+        public async Task Build(string gameId, Build build) {
             await ExecuteRoleAction(gameId, build);
-            //TODO: raise built event
         }
 
-        public async Task TakePlantation(string gameId, TakePlantation takePlantation)
-        {
+        public async Task DeliverGoods(string gameId, DeliverGoods deliverGoods) {
+            await ExecuteRoleAction(gameId, deliverGoods);
+        }
+
+        public async Task EndPhase(string gameId, EndPhase endPhase) {
+            await ExecuteRoleAction(gameId, endPhase);
+        }
+
+        public async Task EndRole(string gameId, EndRole endRole) {
+            await ExecuteRoleAction(gameId, endRole);
+        }
+
+        public async Task MoveColonist(string gameId, MoveColonist moveColonist) {
+            await ExecuteRoleAction(gameId, moveColonist);
+        }
+
+        public async Task SellGood(string gameId, SellGood sellGood) {
+            await ExecuteRoleAction(gameId, sellGood);
+        }
+
+        public async Task StoreGoods(string gameId, StoreGoods storeGoods) {
+            await ExecuteRoleAction(gameId, storeGoods);
+        }
+
+        public async Task TakePlantation(string gameId, TakePlantation takePlantation) {
             await ExecuteRoleAction(gameId, takePlantation);
-            //TODO: raise plantation took event
         }
 
-        private async Task ExecuteRoleAction(string gameId, IAction build)
-        {
+        public async Task TakeQuarry(string gameId, TakeQuarry takeQuarry) {
+            await ExecuteRoleAction(gameId, takeQuarry);
+        }
+
+        public async Task TakeRandomPlantation(string gameId, TakeRandomPlantation takeRandomPlantation) {
+            await ExecuteRoleAction(gameId, takeRandomPlantation);
+        }
+
+        public async Task UseWharf(string gameId, UseWharf useWharf) {
+            await ExecuteRoleAction(gameId, useWharf);
+        }
+
+        private async Task ExecuteRoleAction(string gameId, IAction build) {
             var game = _gameStore.FindById(gameId);
             await _gameService.ExecuteRoleAction(game, GetUserId(), build);
-            //TODO: remove this and use action specific events
-            await Clients.Groups(gameId).GameChanged(new GameChangedEvent { Game = GameDto.Create(game) });
-            if (game.IsEnded)
-            {
+            //TODO: may be a good idea to specify events related to executed action
+            await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
+            if (game.IsEnded) {
                 await AfterGameEnded(game);
             }
         }
 
-        private async Task AfterGameEnded(Game game)
-        {
-            var endedEvent = new GameEndedEvent
-            {
+        private async Task AfterGameEnded(Game game) {
+            var endedEvent = new GameEndedEvent {
                 GameId = game.Id
             };
             await Clients.Groups(game.Id).GameEnded(endedEvent);
             _gameStore.Remove(game.Id);
         }
 
-        private IPlayer CreatePlayerForCurrentUser()
-        {
+        private IPlayer CreatePlayerForCurrentUser() {
             return new Player(GetUserId(), GetUserName());
         }
 
-        private string GetUserId()
-        {
+        private string GetUserId() {
             return _userService.GetUserId(Context);
         }
 
-        private string GetUserName()
-        {
+        private string GetUserName() {
             return _userService.GetUsername(Context);
         }
     }

@@ -53,6 +53,12 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
             _deck.RemoveAt(index);
             return plantation;
         }
+        
+        public IPlantation DrawForType<T>() where T : IGood {
+            var plantation = _deck.First(p => p.CanProduce<T>());
+            _deck.Remove(plantation);
+            return plantation;
+        }
 
         public void DiscardAndDrawNew() {
             Drawable = _deck.Take(_visibleCount).ToArray();

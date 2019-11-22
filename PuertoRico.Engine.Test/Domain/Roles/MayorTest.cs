@@ -40,7 +40,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
                 p.Build(new SmallMarket());
             });
             var action = new MoveColonist {
-                FromIndex = 0,
+                FromIndex = 1,
                 ToIndex = 0,
                 IsMoveFromTile = true,
                 IsMoveToTile = false

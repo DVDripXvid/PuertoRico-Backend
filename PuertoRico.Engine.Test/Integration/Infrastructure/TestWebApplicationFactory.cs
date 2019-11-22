@@ -11,21 +11,20 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
 {
     public class TestWebApplicationFactory : WebApplicationFactory<TestStartup>
     {
-        public IUserService FakeUserService = A.Fake<IUserService>();
+        public FakeUserService FakeUserService = new FakeUserService();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>
             {
-                services.AddSingleton(FakeUserService);
+                services.AddSingleton<IUserService>(FakeUserService);
             });
         }
 
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
             return WebHost.CreateDefaultBuilder()
-                .ConfigureLogging(logging =>
-                {
+                .ConfigureLogging(logging => {
                     logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
                 })
                 .UseStartup<TestStartup>();

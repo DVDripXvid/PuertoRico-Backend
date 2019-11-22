@@ -73,8 +73,8 @@ namespace PuertoRico.Engine.Test.Domain.Roles
                 TileIndex = 2
             };
             CanExecuteActionOnce(action, player);
-            Assert.Single(player.Tiles);
-            Assert.NotNull(player.Tiles.First().Worker);
+            Assert.Equal(2, player.Tiles.Count());
+            Assert.NotNull(player.Tiles[1].Worker);
         }
 
         [Fact]
@@ -83,10 +83,10 @@ namespace PuertoRico.Engine.Test.Domain.Roles
                 TileIndex = 1,
             };
             CanExecuteActionOnce(action, RoleOwner);
-            Assert.Single(RoleOwner.Tiles);
+            Assert.Equal(2, RoleOwner.Tiles.Count());
             var player = Game.GetNextPlayerTo(RoleOwner);
             Assert.Throws<GameException>(() => CanExecuteActionOnce(action, player));
-            Assert.Empty(player.Tiles);
+            Assert.Single(player.Tiles);
         }
         
         [Fact]
@@ -106,7 +106,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             var hacienda = new Hacienda();
             hacienda.AddWorker(new Colonist());
             player.Build(hacienda);
-            player.SelectRole(Role, Game);
+            ReselectRole(player);
         }
     }
 }

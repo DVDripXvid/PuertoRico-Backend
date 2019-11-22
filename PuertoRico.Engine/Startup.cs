@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Services;
 using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.Stores;
@@ -31,21 +32,17 @@ namespace PuertoRico.Engine
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
 
-            UseSignalR(app);
+            app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
         }
 
         protected virtual void AddSignalR(IServiceCollection services) {
             services.AddSignalR()
                 .AddAzureSignalR();
-        }
-
-        protected virtual void UseSignalR(IApplicationBuilder app) {
-            app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
         }
     }
 }

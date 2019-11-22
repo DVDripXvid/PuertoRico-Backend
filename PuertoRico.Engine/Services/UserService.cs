@@ -8,7 +8,6 @@ namespace PuertoRico.Engine.Services
     {
         public string GetUserId(HubCallerContext context) {
             return context.UserIdentifier ??
-                   "user1" ??
                    throw new UnauthorizedAccessException("Cannot obtain user identifier");
         }
 

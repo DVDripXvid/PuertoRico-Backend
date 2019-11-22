@@ -5,12 +5,11 @@ using Xunit;
 
 namespace PuertoRico.Engine.Test.Integration
 {
-    public class SampleTest : TestBase
+    public class BasicTest : TestBase
     {
-        public SampleTest(TestWebApplicationFactory factory) : base(factory) { }
 
         [Fact]
-        public async Task SampleTestCase() {
+        public async Task CreateGame() {
             var session = await CreateSession("user1");
             GameCreatedEvent ev = null;
             session.GameCreated += e => ev = e;

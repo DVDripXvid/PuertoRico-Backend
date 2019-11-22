@@ -27,6 +27,7 @@ namespace PuertoRico.Engine.Domain.Roles
         public void Execute(IAction action, IPlayer player) {
             if (action.ActionType == ActionType.EndRole) {
                 MoveToNextPlayer();
+                return;
             }
             var availableActionTypes = GetAvailableActionTypes(player);
             if (!availableActionTypes.Contains(action.ActionType)) {

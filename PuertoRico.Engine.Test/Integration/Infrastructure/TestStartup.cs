@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.SignalR;
 
 namespace PuertoRico.Engine.Test.Integration.Infrastructure
@@ -16,8 +18,8 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
             services.AddSignalR();
         }
 
-        protected override void UseSignalR(IApplicationBuilder app)
-        {
+        public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
+            loggerFactory.AddFile("Logs/PuertoRico-{Date}.txt");
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

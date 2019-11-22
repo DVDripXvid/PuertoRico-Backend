@@ -25,7 +25,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             var plantation = new CornPlantation();
             plantation.AddWorker(new Colonist());
             RoleOwner.Plant(plantation);
-            
+
             ReselectRole();
             CanExecuteActionOnce(action, RoleOwner);
         }

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
@@ -52,7 +53,7 @@ namespace PuertoRico.Engine.Domain
             if (PlayerCount < GameConfig.MinPlayer || PlayerCount > GameConfig.MaxPlayer) {
                 throw new InvalidOperationException("Invalid player count");
             }
-            
+
             PlantationDeck = new PlantationDeck(PlayerCount);
 
             var colonistCount = GameConfig.ColonistCount[PlayerCount];
@@ -74,6 +75,9 @@ namespace PuertoRico.Engine.Domain
             CargoShips = InitializeCargoShips(PlayerCount);
             VictoryPointChips = InitializeVictoryPointChips(PlayerCount);
             Roles = InitializeRoles(PlayerCount, this);
+            
+            InitializePlayerDoubloons(Players);
+            InitializePlayerPlantations(Players, PlantationDeck);
 
             IsStarted = true;
         }
@@ -83,15 +87,17 @@ namespace PuertoRico.Engine.Domain
                 if (IsFull) {
                     throw new InvalidOperationException("This game is full");
                 }
-                Players.Add(player);   
+
+                Players.Add(player);
             }
         }
 
         public void Leave(IPlayer player) {
             lock (_syncRoot) {
                 if (IsStarted) {
-                    throw new InvalidOperationException("Game already started"); 
+                    throw new InvalidOperationException("Game already started");
                 }
+
                 if (!Players.Remove(player)) {
                     throw new InvalidOperationException("Player not in game");
                 }
@@ -115,6 +121,7 @@ namespace PuertoRico.Engine.Domain
                 IsEnded = true;
                 return;
             }
+
             Roles.ForEach(role => role.AddOneDoubloon());
             Players.ForEach(p => p.PutBackRole(this));
             _governor = GetNextPlayerTo(_governor);
@@ -143,6 +150,32 @@ namespace PuertoRico.Engine.Domain
                 ? 0
                 : indexOfCurrentPlayer + 1;
             return Players[indexOfNextPlayer];
+        }
+
+        private static void InitializePlayerDoubloons(List<IPlayer> players) {
+            var doubloonCount = players.Count - 1;
+            players.ForEach(p => p.Doubloons = doubloonCount);
+        }
+
+        private static void InitializePlayerPlantations(IReadOnlyList<IPlayer> players, PlantationDeck deck) {
+            players[0].Plant(deck.DrawForType<Indigo>());
+            players[1].Plant(deck.DrawForType<Indigo>());
+            switch (players.Count) {
+                case 3:
+                    players[2].Plant(deck.DrawForType<Corn>());
+                    break;
+                case 4:
+                    players[2].Plant(deck.DrawForType<Corn>());
+                    players[3].Plant(deck.DrawForType<Corn>());
+                    break;
+                case 5:
+                    players[2].Plant(deck.DrawForType<Indigo>());
+                    players[3].Plant(deck.DrawForType<Corn>());
+                    players[4].Plant(deck.DrawForType<Corn>());
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid player count: " + players.Count);
+            }
         }
 
         private static List<IRole> InitializeRoles(int playerCount, Game game) {

@@ -22,6 +22,7 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             Game.Join(new Player("user2", "User 2"));
             Game.Join(new Player("user3", "User 3"));
             Game.Start();
+            Game.Players.ForEach(p => p.Doubloons = 0);
             Role = (T)Activator.CreateInstance(typeof(T), Game);
             for (var i = 0; i < DoubloonsOnRole; i++) {
                 Role.AddOneDoubloon();
@@ -71,8 +72,14 @@ namespace PuertoRico.Engine.Test.Domain.Roles
             return Game.Players.Find(p => p != RoleOwner);
         }
 
-        protected void ReselectRole() {
-            RoleOwner.SelectRole(Role, Game);
+        protected void ReselectRole(IPlayer player = null) {
+            if (player == null) {
+                player = RoleOwner;
+            }
+            if (player.Role != null) {
+                player.PutBackRole(Game);
+            }
+            player.SelectRole(Role, Game);
         }
 
     }
