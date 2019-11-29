@@ -24,7 +24,7 @@ namespace PuertoRico.TestClient
         static void Main(string[] args) {
             SampleGame().Wait();
             while (true) {
-                Thread.Sleep(1500);
+                Thread.Sleep(1000);
                 var cmd = Console.ReadLine();
                 if (cmd?.Trim().ToLower() == "exit") {
                     break;
