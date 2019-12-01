@@ -26,6 +26,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: Test
+  enabled: False
   inputs:
     command: test
     projects: '*.Test/*.csproj'
