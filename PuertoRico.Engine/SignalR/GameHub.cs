@@ -54,7 +54,6 @@ namespace PuertoRico.Engine.SignalR
             };
             await Clients.Group(LobbyGroup).GameCreated(gameCreatedEvent);
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
-            Console.WriteLine("asd");
         }
 
         public async Task JoinGame(string gameId) {
