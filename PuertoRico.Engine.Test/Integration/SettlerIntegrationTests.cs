@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.SignalR.Commands;
 using Xunit;
 
 namespace PuertoRico.Engine.Test.Integration
@@ -15,28 +16,49 @@ namespace PuertoRico.Engine.Test.Integration
                 var current = GetCurrentSession(s.GameState);
                 await SelectRole(current, "Settler");
                 var t1 = s.GameState.VisiblePlantations.First().Index;
-                await current.TakePlantation(gameId, new TakePlantation {TileIndex = t1});
+                await current.TakePlantation(new GameCommand<TakePlantation> {
+                    Action = new TakePlantation {TileIndex = t1},
+                    GameId = gameId
+                });
                 current = GetCurrentSession(s.GameState);
-                await current.TakePlantation(gameId, new TakePlantation {TileIndex = t1 + 1});
+                await current.TakePlantation(new GameCommand<TakePlantation> {
+                    Action = new TakePlantation {TileIndex = t1 + 1},
+                    GameId = gameId
+                });
                 current = GetCurrentSession(s.GameState);
-                await current.TakePlantation(gameId, new TakePlantation {TileIndex = t1 + 2});
+                await current.TakePlantation(new GameCommand<TakePlantation> {
+                    Action = new TakePlantation {TileIndex = t1 + 2},
+                    GameId = gameId
+                });
                 Assert.Null(s.GameState.CurrentRole);
                 Assert.DoesNotContain(s.GameState.SelectableRoles, r => r.Name == "Settler");
 
                 current = GetCurrentSession(s.GameState);
                 await SelectRole(current, "Craftsman");
-                await current.EndPhase(gameId, new EndPhase());
+                await current.EndPhase(new GameCommand<EndPhase> {
+                    Action = new EndPhase(),
+                    GameId = gameId
+                });
                 Assert.Null(s.GameState.CurrentRole);
                 Assert.DoesNotContain(s.GameState.SelectableRoles, r => r.Name == "Settler");
                 Assert.DoesNotContain(s.GameState.SelectableRoles, r => r.Name == "Craftsman");
             
                 current = GetCurrentSession(s.GameState);
                 await SelectRole(current, "Mayor");
-                await current.EndPhase(gameId, new EndPhase());
+                await current.EndPhase(new GameCommand<EndPhase> {
+                    Action = new EndPhase(),
+                    GameId = gameId
+                });
                 current = GetCurrentSession(s.GameState);
-                await current.EndPhase(gameId, new EndPhase());
+                await current.EndPhase(new GameCommand<EndPhase> {
+                    Action = new EndPhase(),
+                    GameId = gameId
+                });
                 current = GetCurrentSession(s.GameState);
-                await current.EndPhase(gameId, new EndPhase());
+                await current.EndPhase(new GameCommand<EndPhase> {
+                    Action = new EndPhase(),
+                    GameId = gameId
+                });
                 
                 Assert.Null(s.GameState.CurrentRole);
                 Assert.Contains(s.GameState.SelectableRoles, r => r.Name == "Settler");

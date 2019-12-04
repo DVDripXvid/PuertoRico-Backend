@@ -1,4 +1,4 @@
-﻿namespace PuertoRico.Engine.Events
+﻿namespace PuertoRico.Engine.SignalR.Events
 {
     public class GameEndedEvent : IGameEvent
     {

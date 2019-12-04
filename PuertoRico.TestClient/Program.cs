@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
-using PuertoRico.Engine.Events;
 using PuertoRico.Engine.SignalR;
+using PuertoRico.Engine.SignalR.Events;
 
 namespace PuertoRico.TestClient
 {

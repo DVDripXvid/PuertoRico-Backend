@@ -8,9 +8,10 @@ using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.DTOs;
-using PuertoRico.Engine.Events;
 using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Services;
+using PuertoRico.Engine.SignalR.Commands;
+using PuertoRico.Engine.SignalR.Events;
 using PuertoRico.Engine.Stores;
 
 namespace PuertoRico.Engine.SignalR
@@ -42,9 +43,9 @@ namespace PuertoRico.Engine.SignalR
             }
         }
 
-        public async Task CreateGame(string name) {
+        public async Task CreateGame(CreateGameCmd cmd) {
             var player = CreatePlayerForCurrentUser();
-            var game = new Game(name);
+            var game = new Game(cmd.Name);
             _gameStore.Add(game);
             game.Join(player);
             var gameCreatedEvent = new GameCreatedEvent {
@@ -56,7 +57,8 @@ namespace PuertoRico.Engine.SignalR
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
         }
 
-        public async Task JoinGame(string gameId) {
+        public async Task JoinGame(GenericGameCmd cmd) {
+            var gameId = cmd.GameId;
             var player = CreatePlayerForCurrentUser();
             var game = _gameStore.FindById(gameId);
             game.Join(player);
@@ -68,7 +70,8 @@ namespace PuertoRico.Engine.SignalR
             await Clients.Group(gameId).PlayerJoined(joinedEvent);
         }
 
-        public async Task LeaveGame(string gameId) {
+        public async Task LeaveGame(GenericGameCmd cmd) {
+            var gameId = cmd.GameId;
             var game = _gameStore.FindById(gameId);
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
@@ -80,7 +83,8 @@ namespace PuertoRico.Engine.SignalR
             await Clients.Group(gameId).PlayerLeft(leftEvent);
         }
 
-        public async Task StartGame(string gameId) {
+        public async Task StartGame(GenericGameCmd cmd) {
+            var gameId = cmd.GameId;
             var game = _gameStore.FindById(gameId);
             game.Start();
             var startedEvent = new GameStartedEvent {
@@ -93,62 +97,62 @@ namespace PuertoRico.Engine.SignalR
             await Clients.Group(gameId).GameChanged(changedEvent);
         }
 
-        public async Task SelectRole(string gameId, SelectRole selectRole) {
-            var game = _gameStore.FindById(gameId);
-            await _gameService.ExecuteSelectRole(game, GetUserId(), selectRole);
+        public async Task SelectRole(GameCommand<SelectRole> cmd) {
+            var game = _gameStore.FindById(cmd.GameId);
+            await _gameService.ExecuteSelectRole(game, GetUserId(), cmd.Action);
             //TODO: raise role selected event
             var changedEvent = new GameChangedEvent {
                 Game = GameDto.Create(game)
             };
-            await Clients.Group(gameId).GameChanged(changedEvent);
+            await Clients.Group(cmd.GameId).GameChanged(changedEvent);
         }
 
-        public async Task BonusProduction(string gameId, BonusProduction bonusProduction) {
-            await ExecuteRoleAction(gameId, bonusProduction);
+        public Task BonusProduction(GameCommand<BonusProduction> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task Build(string gameId, Build build) {
-            await ExecuteRoleAction(gameId, build);
+        public Task Build(GameCommand<Build> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task DeliverGoods(string gameId, DeliverGoods deliverGoods) {
-            await ExecuteRoleAction(gameId, deliverGoods);
+        public Task DeliverGoods(GameCommand<DeliverGoods> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task EndPhase(string gameId, EndPhase endPhase) {
-            await ExecuteRoleAction(gameId, endPhase);
+        public Task EndPhase(GameCommand<EndPhase> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task EndRole(string gameId, EndRole endRole) {
-            await ExecuteRoleAction(gameId, endRole);
+        public Task EndRole(GameCommand<EndRole> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task MoveColonist(string gameId, MoveColonist moveColonist) {
-            await ExecuteRoleAction(gameId, moveColonist);
+        public Task MoveColonist(GameCommand<MoveColonist> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task SellGood(string gameId, SellGood sellGood) {
-            await ExecuteRoleAction(gameId, sellGood);
+        public Task SellGood(GameCommand<SellGood> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task StoreGoods(string gameId, StoreGoods storeGoods) {
-            await ExecuteRoleAction(gameId, storeGoods);
+        public Task StoreGoods(GameCommand<StoreGoods> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task TakePlantation(string gameId, TakePlantation takePlantation) {
-            await ExecuteRoleAction(gameId, takePlantation);
+        public Task TakePlantation(GameCommand<TakePlantation> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task TakeQuarry(string gameId, TakeQuarry takeQuarry) {
-            await ExecuteRoleAction(gameId, takeQuarry);
+        public Task TakeQuarry(GameCommand<TakeQuarry> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task TakeRandomPlantation(string gameId, TakeRandomPlantation takeRandomPlantation) {
-            await ExecuteRoleAction(gameId, takeRandomPlantation);
+        public Task TakeRandomPlantation(GameCommand<TakeRandomPlantation> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
-        public async Task UseWharf(string gameId, UseWharf useWharf) {
-            await ExecuteRoleAction(gameId, useWharf);
+        public Task UseWharf(GameCommand<UseWharf> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
         private async Task ExecuteRoleAction(string gameId, IAction build) {

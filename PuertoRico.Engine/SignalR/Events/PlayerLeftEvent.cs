@@ -1,6 +1,6 @@
 ﻿using PuertoRico.Engine.DTOs;
 
-namespace PuertoRico.Engine.Events
+namespace PuertoRico.Engine.SignalR.Events
 {
     public class PlayerLeftEvent : IGameEvent
     {

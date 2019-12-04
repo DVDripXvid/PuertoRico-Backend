@@ -7,8 +7,9 @@ using FakeItEasy;
 using Microsoft.AspNetCore.SignalR.Client;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DTOs;
-using PuertoRico.Engine.Events;
 using PuertoRico.Engine.SignalR;
+using PuertoRico.Engine.SignalR.Commands;
+using PuertoRico.Engine.SignalR.Events;
 using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
 
@@ -41,29 +42,35 @@ namespace PuertoRico.Engine.Test.Integration
             string gameId = null;
             session2.GameCreated += ev => {
                 gameId = ev.GameId;
-                session2.JoinGame(ev.GameId).Wait();
-                session3.JoinGame(ev.GameId).Wait();
+                var joinCmd = new GenericGameCmd {GameId = ev.GameId};
+                session2.JoinGame(joinCmd).Wait();
+                session3.JoinGame(joinCmd).Wait();
             };
-            await session1.CreateGame("3PlayerGame");
+            await session1.CreateGame(new CreateGameCmd {Name = "3PlayerGame"});
             session1.PlayerJoinedSignal.WaitOne(5000);
             session1.PlayerJoinedSignal.WaitOne(5000);
             Assert.NotNull(gameId);
             GameChangedEvent changedEvent = null;
             session1.GameChanged += ev => changedEvent = ev;
-            await session1.StartGame(gameId);
+            await session1.StartGame(new GenericGameCmd {
+                GameId = gameId
+            });
             Assert.NotNull(changedEvent);
             Assert.Equal(3, changedEvent.Game.Players.Count);
             Assert.Equal(3, changedEvent.Game.Players.Select(p => p.UserId).Distinct().Count());
             return (gameId, session1, session2, session3);
         }
-        
+
         protected GameHubProxy GetCurrentSession(GameDto game) {
             return Sessions[game.CurrentPlayer.UserId];
         }
 
         protected static async Task SelectRole(GameHubProxy session, string roleName) {
             var roleIdx = session.GameState.SelectableRoles.Single(r => r.Name == roleName).Index;
-            await session.SelectRole(session.GameState.Id, new SelectRole { RoleIndex = roleIdx});
+            await session.SelectRole(new GameCommand<SelectRole> {
+                Action = new SelectRole {RoleIndex = roleIdx},
+                GameId = session.GameState.Id
+            });
         }
     }
 }

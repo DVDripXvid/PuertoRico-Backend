@@ -24,6 +24,12 @@ namespace PuertoRico.Engine
             services.AddMvc();
             services.AddApplicationInsightsTelemetry();
             services.AddHttpContextAccessor();
+            services.AddCors(options => options
+                .AddDefaultPolicy(builder => builder
+                    .AllowCredentials()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins("http://localhost:3000")));
 
             services.AddTransient<IGameService, GameService>();
             services.AddSingleton<IGameStore, InMemoryGameStore>();
@@ -38,6 +44,7 @@ namespace PuertoRico.Engine
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors();
             app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
         }
 

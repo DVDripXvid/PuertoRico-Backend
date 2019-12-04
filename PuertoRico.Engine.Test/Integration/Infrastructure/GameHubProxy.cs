@@ -5,9 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.DTOs;
-using PuertoRico.Engine.Events;
 using PuertoRico.Engine.SignalR;
+using PuertoRico.Engine.SignalR.Commands;
+using PuertoRico.Engine.SignalR.Events;
 
 namespace PuertoRico.Engine.Test.Integration.Infrastructure
 {
@@ -80,98 +82,84 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
             });
         }
 
-        public Task CreateGame(string name) {
+        public Task CreateGame(CreateGameCmd cmd) {
             GameCreatedSignal.Reset();
-            return InvokeMeAsync(name,false);
+            return InvokeMeAsync(cmd, false);
         }
 
-        public Task JoinGame(string gameId) {
+        public Task JoinGame(GenericGameCmd cmd) {
             PlayerJoinedSignal.Reset();
-            return InvokeMeAsync(gameId, false);
+            return InvokeMeAsync(cmd, false);
         }
 
-        public Task LeaveGame(string gameId) {
+        public Task LeaveGame(GenericGameCmd cmd) {
             PlayerLeftSignal.Reset();
-            return InvokeMeAsync(gameId, false);
+            return InvokeMeAsync(cmd, false);
         }
 
-        public Task StartGame(string gameId) {
+        public Task StartGame(GenericGameCmd cmd) {
             GameStartedSignal.Reset();
-            return InvokeMeAsync(gameId);
+            return InvokeMeAsync(cmd);
         }
 
-        public Task SelectRole(string gameId, SelectRole selectRole) {
-            return InvokeMeAsync(gameId, selectRole);
+        public Task SelectRole(GameCommand<SelectRole> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task BonusProduction(string gameId, BonusProduction action) {
-            return InvokeMeAsync(gameId, action);
+        public Task BonusProduction(GameCommand<BonusProduction> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task Build(string gameId, Build action) {
-            return InvokeMeAsync(gameId, action);
+        public Task Build(GameCommand<Build> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task DeliverGoods(string gameId, DeliverGoods action) {
-            return InvokeMeAsync(gameId, action);
+        public Task DeliverGoods(GameCommand<DeliverGoods> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task EndPhase(string gameId, EndPhase action) {
-            return InvokeMeAsync(gameId, action);
+        public Task EndPhase(GameCommand<EndPhase> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task EndRole(string gameId, EndRole action) {
-            return InvokeMeAsync(gameId, action);
+        public Task EndRole(GameCommand<EndRole> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task MoveColonist(string gameId, MoveColonist action) {
-            return InvokeMeAsync(gameId, action);
+        public Task MoveColonist(GameCommand<MoveColonist> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task SellGood(string gameId, SellGood action) {
-            return InvokeMeAsync(gameId, action);
+        public Task SellGood(GameCommand<SellGood> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task StoreGoods(string gameId, StoreGoods action) {
-            return InvokeMeAsync(gameId, action);
+        public Task StoreGoods(GameCommand<StoreGoods> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task TakePlantation(string gameId, TakePlantation action) {
-            return InvokeMeAsync(gameId, action);
+        public Task TakePlantation(GameCommand<TakePlantation> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task TakeQuarry(string gameId, TakeQuarry action) {
-            return InvokeMeAsync(gameId, action);
+        public Task TakeQuarry(GameCommand<TakeQuarry> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task TakeRandomPlantation(string gameId, TakeRandomPlantation action) {
-            return InvokeMeAsync(gameId, action);
+        public Task TakeRandomPlantation(GameCommand<TakeRandomPlantation> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        public Task UseWharf(string gameId, UseWharf action) {
-            return InvokeMeAsync(gameId, action);
+        public Task UseWharf(GameCommand<UseWharf> cmd) {
+            return InvokeMeAsync(cmd);
         }
 
-        private async Task InvokeMeAsync(object arg1, bool waitForGameChange = true, [CallerMemberName] string caller = null) {
+        private async Task InvokeMeAsync(object arg1, bool waitForGameChange = true,
+            [CallerMemberName] string caller = null) {
             SetFakeUser();
             if (waitForGameChange) {
                 _gameChangedSignal.Reset();
                 var t = _hub.SendAsync(caller, arg1);
-                _gameChangedSignal.WaitOne(5000);
-                await t;
-            }
-            else {
-                await _hub.InvokeAsync(caller, arg1);
-            }
-            
-            await Task.Delay(300);
-        }
-
-        private async Task InvokeMeAsync(object arg1, object arg2,  bool waitForGameChange = true, [CallerMemberName] string caller = null) {
-            SetFakeUser();
-            if (waitForGameChange) {
-                _gameChangedSignal.Reset();
-                var t = _hub.SendAsync(caller, arg1, arg2);
                 _gameChangedSignal.WaitOne(5000);
                 await t;
             }
