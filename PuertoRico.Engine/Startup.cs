@@ -29,7 +29,11 @@ namespace PuertoRico.Engine
                     .AllowCredentials()
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("http://localhost:3000")));
+                    .WithOrigins(
+                        "http://localhost:3000",
+                        "https://storagepuertodev.z16.web.core.windows.net"
+                    )
+                ));
 
             services.AddTransient<IGameService, GameService>();
             services.AddSingleton<IGameStore, InMemoryGameStore>();
