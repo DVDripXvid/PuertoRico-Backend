@@ -8,6 +8,7 @@ using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.DTOs;
+using PuertoRico.Engine.Exceptions;
 using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Services;
 using PuertoRico.Engine.SignalR.Commands;
@@ -35,13 +36,14 @@ namespace PuertoRico.Engine.SignalR
             foreach (var game in games) {
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
                 if (game.IsStarted) {
-                    await Clients.Caller.GameStarted(new GameStartedEvent { GameId = game.Id});
+                    await Clients.Caller.GameStarted(new GameStartedEvent {GameId = game.Id});
                     var gameChangedEvent = new GameChangedEvent {
                         Game = GameDto.Create(game)
                     };
                     await Clients.Caller.GameChanged(gameChangedEvent);
                 }
             }
+
             var lobbyGames = _gameStore.FindNotStarted();
             foreach (var lobbyGame in lobbyGames) {
                 var gameCreatedEvent = new GameCreatedEvent {
@@ -109,7 +111,13 @@ namespace PuertoRico.Engine.SignalR
 
         public async Task SelectRole(GameCommand<SelectRole> cmd) {
             var game = _gameStore.FindById(cmd.GameId);
-            await _gameService.ExecuteSelectRole(game, GetUserId(), cmd.Action);
+            try {
+                await _gameService.ExecuteSelectRole(game, GetUserId(), cmd.Action);
+            }
+            catch (Exception e) {
+                await Clients.Caller.Error(new GameErrorEvent {ErrorMessage = e.Message});
+            }
+
             //TODO: raise role selected event
             var changedEvent = new GameChangedEvent {
                 Game = GameDto.Create(game)
@@ -167,7 +175,13 @@ namespace PuertoRico.Engine.SignalR
 
         private async Task ExecuteRoleAction(string gameId, IAction build) {
             var game = _gameStore.FindById(gameId);
-            await _gameService.ExecuteRoleAction(game, GetUserId(), build);
+            try {
+                await _gameService.ExecuteRoleAction(game, GetUserId(), build);
+            }
+            catch (Exception e) {
+                await Clients.Caller.Error(new GameErrorEvent {ErrorMessage = e.Message});
+            }
+
             //TODO: may be a good idea to specify events related to executed action
             await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
             if (game.IsEnded) {

@@ -16,5 +16,7 @@ namespace PuertoRico.Engine.SignalR
         Task PlayerJoined(PlayerJoinedEvent ev);
 
         Task PlayerLeft(PlayerLeftEvent ev);
+        
+        Task Error(GameErrorEvent ev);
     }
 }
