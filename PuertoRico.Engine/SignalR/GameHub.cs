@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -188,9 +189,24 @@ namespace PuertoRico.Engine.SignalR
 
             //TODO: may be a good idea to specify events related to executed action
             await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
+            await AfterActionHappened(game);
+            
             if (game.IsEnded) {
                 await AfterGameEnded(game);
             }
+        }
+
+        private async Task AfterActionHappened(Game game) {
+            var tasks = new List<Task>(game.PlayerCount);
+            game.Players.ForEach(p => {
+                var availableActions = game.GetAvailableActionTypes(p);
+                var t =  Clients.Users(p.UserId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
+                    GameId = game.Id,
+                    ActionTypes = availableActions,
+                });
+                tasks.Add(t);
+            });
+            await Task.WhenAll(tasks);
         }
 
         private async Task AfterGameEnded(Game game) {
