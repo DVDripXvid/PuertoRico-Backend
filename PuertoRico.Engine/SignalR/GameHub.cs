@@ -35,11 +35,21 @@ namespace PuertoRico.Engine.SignalR
             foreach (var game in games) {
                 await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
                 if (game.IsStarted) {
+                    await Clients.Caller.GameStarted(new GameStartedEvent { GameId = game.Id});
                     var gameChangedEvent = new GameChangedEvent {
                         Game = GameDto.Create(game)
                     };
                     await Clients.Caller.GameChanged(gameChangedEvent);
                 }
+            }
+            var lobbyGames = _gameStore.FindNotStarted();
+            foreach (var lobbyGame in lobbyGames) {
+                var gameCreatedEvent = new GameCreatedEvent {
+                    GameId = lobbyGame.Id,
+                    GameName = lobbyGame.Name,
+                    Players = lobbyGame.Players.Select(PlayerDto.Create),
+                };
+                await Clients.Caller.GameCreated(gameCreatedEvent);
             }
         }
 
@@ -51,7 +61,7 @@ namespace PuertoRico.Engine.SignalR
             var gameCreatedEvent = new GameCreatedEvent {
                 GameId = game.Id,
                 GameName = game.Name,
-                CreatedBy = PlayerDto.Create(player)
+                Players = game.Players.Select(PlayerDto.Create)
             };
             await Clients.Group(LobbyGroup).GameCreated(gameCreatedEvent);
             await Groups.AddToGroupAsync(Context.ConnectionId, game.Id);
@@ -67,7 +77,7 @@ namespace PuertoRico.Engine.SignalR
                 Player = PlayerDto.Create(player),
                 GameId = gameId
             };
-            await Clients.Group(gameId).PlayerJoined(joinedEvent);
+            await Clients.Group(LobbyGroup).PlayerJoined(joinedEvent);
         }
 
         public async Task LeaveGame(GenericGameCmd cmd) {
@@ -80,7 +90,7 @@ namespace PuertoRico.Engine.SignalR
                 Player = PlayerDto.Create(player),
                 GameId = gameId
             };
-            await Clients.Group(gameId).PlayerLeft(leftEvent);
+            await Clients.Group(LobbyGroup).PlayerLeft(leftEvent);
         }
 
         public async Task StartGame(GenericGameCmd cmd) {

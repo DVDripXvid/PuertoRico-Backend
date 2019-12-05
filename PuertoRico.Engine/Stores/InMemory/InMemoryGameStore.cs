@@ -18,8 +18,8 @@ namespace PuertoRico.Engine.Stores.InMemory
             throw new GameException("Game not found");
         }
 
-        public IEnumerable<Game> FindNotFull() {
-            return _games.Values.Where(g => !g.IsFull);
+        public IEnumerable<Game> FindNotStarted() {
+            return _games.Values.Where(g => !g.IsStarted);
         }
 
         public void Add(Game game) {
