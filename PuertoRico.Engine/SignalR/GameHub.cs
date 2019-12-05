@@ -42,6 +42,7 @@ namespace PuertoRico.Engine.SignalR
                         Game = GameDto.Create(game)
                     };
                     await Clients.Caller.GameChanged(gameChangedEvent);
+                    await SendAvailableActionTypes(game);
                 }
             }
 
@@ -108,6 +109,7 @@ namespace PuertoRico.Engine.SignalR
                 Game = GameDto.Create(game)
             };
             await Clients.Group(gameId).GameChanged(changedEvent);
+            await SendAvailableActionTypes(game);
         }
 
         public async Task SelectRole(GameCommand<SelectRole> cmd) {
@@ -189,17 +191,22 @@ namespace PuertoRico.Engine.SignalR
 
             //TODO: may be a good idea to specify events related to executed action
             await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
-            await AfterActionHappened(game);
+            await SendAvailableActionTypes(game);
             
             if (game.IsEnded) {
                 await AfterGameEnded(game);
             }
         }
 
-        private async Task AfterActionHappened(Game game) {
+        private async Task SendAvailableActionTypes(Game game) {
             var tasks = new List<Task>(game.PlayerCount);
+            var currentPlayer = game.GetCurrentPlayer();
             game.Players.ForEach(p => {
-                var availableActions = game.GetAvailableActionTypes(p);
+                //no parallelism yet
+                var availableActions = currentPlayer == p 
+                    ? game.GetAvailableActionTypes(p)
+                    : new HashSet<ActionType>();
+                
                 var t =  Clients.Users(p.UserId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
                     GameId = game.Id,
                     ActionTypes = availableActions,

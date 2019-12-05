@@ -28,9 +28,7 @@ namespace PuertoRico.Engine.DTOs
         public ICollection<RoleDto> SelectableRoles { get; set; }
 
         public static GameDto Create(Game game) {
-            var currentPlayer = game.CurrentRoleOwnerPlayer.Role == null
-                ? game.CurrentRoleOwnerPlayer
-                : game.CurrentRoleOwnerPlayer.Role.CurrentPlayer;
+            var currentPlayer = game.GetCurrentPlayer();
             return new GameDto {
                 Id = game.Id,
                 Name = game.Name,

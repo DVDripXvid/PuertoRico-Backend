@@ -135,6 +135,7 @@ namespace PuertoRico.Engine.Domain
                     ? new HashSet<ActionType> {ActionType.SelectRole} 
                     : new HashSet<ActionType>();
             }
+
             return CurrentRoleOwnerPlayer.Role.GetAvailableActionTypes(player);
         }
 
@@ -152,6 +153,12 @@ namespace PuertoRico.Engine.Domain
                 ? 0
                 : indexOfCurrentPlayer + 1;
             return Players[indexOfNextPlayer];
+        }
+
+        public IPlayer GetCurrentPlayer() {
+            return CurrentRoleOwnerPlayer.Role == null
+                ? CurrentRoleOwnerPlayer
+                : CurrentRoleOwnerPlayer.Role.CurrentPlayer;
         }
 
         private static void InitializePlayerDoubloons(List<IPlayer> players) {
