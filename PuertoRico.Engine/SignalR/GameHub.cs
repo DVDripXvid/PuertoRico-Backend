@@ -42,7 +42,7 @@ namespace PuertoRico.Engine.SignalR
                         Game = GameDto.Create(game)
                     };
                     await Clients.Caller.GameChanged(gameChangedEvent);
-                    await SendAvailableActionTypes(game);
+                    await SendAvailableActionTypes(game, GetUserId());
                 }
             }
 
@@ -109,7 +109,9 @@ namespace PuertoRico.Engine.SignalR
                 Game = GameDto.Create(game)
             };
             await Clients.Group(gameId).GameChanged(changedEvent);
-            await SendAvailableActionTypes(game);
+            
+            var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
+            await Task.WhenAll(tasks);
         }
 
         public async Task SelectRole(GameCommand<SelectRole> cmd) {
@@ -126,6 +128,8 @@ namespace PuertoRico.Engine.SignalR
                 Game = GameDto.Create(game)
             };
             await Clients.Group(cmd.GameId).GameChanged(changedEvent);
+
+            await SendAvailableActionTypes(game, GetUserId());
         }
 
         public Task BonusProduction(GameCommand<BonusProduction> cmd) {
@@ -191,29 +195,26 @@ namespace PuertoRico.Engine.SignalR
 
             //TODO: may be a good idea to specify events related to executed action
             await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
-            await SendAvailableActionTypes(game);
-            
+
+            var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
+            await Task.WhenAll(tasks);
+
             if (game.IsEnded) {
                 await AfterGameEnded(game);
             }
         }
 
-        private async Task SendAvailableActionTypes(Game game) {
-            var tasks = new List<Task>(game.PlayerCount);
+        private async Task SendAvailableActionTypes(Game game, string userId) {
+            var player = game.Players.First(p => p.UserId == userId);
             var currentPlayer = game.GetCurrentPlayer();
-            game.Players.ForEach(p => {
-                //no parallelism yet
-                var availableActions = currentPlayer == p 
-                    ? game.GetAvailableActionTypes(p)
-                    : new HashSet<ActionType>();
-                
-                var t =  Clients.Users(p.UserId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
-                    GameId = game.Id,
-                    ActionTypes = availableActions,
-                });
-                tasks.Add(t);
+            var availableActions = currentPlayer == player
+                ? game.GetAvailableActionTypes(player)
+                : new HashSet<ActionType>();
+
+            await Clients.Users(player.UserId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
+                GameId = game.Id,
+                ActionTypes = availableActions,
             });
-            await Task.WhenAll(tasks);
         }
 
         private async Task AfterGameEnded(Game game) {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,9 +14,9 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
         {
         }
 
-        protected override void AddSignalR(IServiceCollection services)
+        protected override ISignalRServerBuilder AddSignalR(IServiceCollection services)
         {
-            services.AddSignalR();
+            return services.AddSignalR();
         }
 
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
