@@ -36,6 +36,9 @@ namespace PuertoRico.Engine.Domain.Roles
                 case MoveColonist moveColonist:
                     ExecuteMoveColonist(moveColonist, player);
                     break;
+                case PlaceColonist placeColonist:
+                    ExecutePlaceColonist(placeColonist, player);
+                    break;
                 case EndPhase _:
                     SetPlayerPhase(player, EndedPhase);
                     break;
@@ -50,7 +53,12 @@ namespace PuertoRico.Engine.Domain.Roles
                 HandleUnknownPhase(phase);
             }
 
-            return new HashSet<ActionType> {ActionType.MoveColonist, ActionType.EndPhase};
+            var actions = new HashSet<ActionType> {ActionType.MoveColonist, ActionType.EndPhase};
+            if (player.IdleColonists.Any()) {
+                actions.Add(ActionType.PlaceColonist);
+            }
+
+            return actions;
         }
 
         protected override string GetInitialPhase(IPlayer player) {
@@ -66,6 +74,18 @@ namespace PuertoRico.Engine.Domain.Roles
             }
             else {
                 player.Buildings[moveColonist.ToIndex].AddWorker(colonist);
+            }
+        }
+
+        private void ExecutePlaceColonist(PlaceColonist placeColonist, IPlayer player) {
+            var colonist = player.IdleColonists.First();
+            player.IdleColonists.Remove(colonist);
+
+            if (placeColonist.IsPlaceToTile) {
+                player.Tiles[placeColonist.ToIndex].AddWorker(colonist);
+            }
+            else {
+                player.Buildings[placeColonist.ToIndex].AddWorker(colonist);
             }
         }
     }

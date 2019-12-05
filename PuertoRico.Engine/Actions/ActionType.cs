@@ -6,6 +6,7 @@
         TakeQuarry,
         Build,
         MoveColonist,
+        PlaceColonist,
         TakeRandomPlantation,
         BonusProduction,
         SellGood,

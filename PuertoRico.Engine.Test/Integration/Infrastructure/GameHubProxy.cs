@@ -130,6 +130,10 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
             return InvokeMeAsync(cmd);
         }
 
+        public Task PlaceColonist(GameCommand<PlaceColonist> cmd) {
+            return InvokeMeAsync(cmd);
+        }
+
         public Task SellGood(GameCommand<SellGood> cmd) {
             return InvokeMeAsync(cmd);
         }

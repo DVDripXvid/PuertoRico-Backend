@@ -17,6 +17,7 @@ namespace PuertoRico.Engine.SignalR
         Task EndPhase(GameCommand<EndPhase> cmd);
         Task EndRole(GameCommand<EndRole> cmd);
         Task MoveColonist(GameCommand<MoveColonist> cmd);
+        Task PlaceColonist(GameCommand<PlaceColonist> cmd);
         Task SellGood(GameCommand<SellGood> cmd);
         Task StoreGoods(GameCommand<StoreGoods> cmd);
         Task TakePlantation(GameCommand<TakePlantation> cmd);

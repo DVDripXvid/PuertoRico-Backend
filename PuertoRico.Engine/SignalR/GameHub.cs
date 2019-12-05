@@ -149,6 +149,10 @@ namespace PuertoRico.Engine.SignalR
             return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }
 
+        public Task PlaceColonist(GameCommand<PlaceColonist> cmd) {
+            return ExecuteRoleAction(cmd.GameId, cmd.Action);
+        }
+
         public Task SellGood(GameCommand<SellGood> cmd) {
             return ExecuteRoleAction(cmd.GameId, cmd.Action);
         }

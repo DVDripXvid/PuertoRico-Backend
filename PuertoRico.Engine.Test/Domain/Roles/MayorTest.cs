@@ -5,6 +5,7 @@ using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
+using PuertoRico.Engine.Domain.Tiles.Plantations;
 using Xunit;
 
 namespace PuertoRico.Engine.Test.Domain.Roles
@@ -46,6 +47,35 @@ namespace PuertoRico.Engine.Test.Domain.Roles
                 IsMoveToTile = false
             };
             Game.Players.ForEach(p => CanExecuteActionMultiple(action, p));
+        }
+
+        [Fact]
+        public void CanPlaceIdleColonistToTile() {
+            var action = new PlaceColonist {
+                ToIndex = 0,
+                IsPlaceToTile = true
+            };
+            
+            CanExecuteActionMultiple(action, RoleOwner);
+            CanExecuteActionOnce(action, GetPlayerWithoutPrivilege());
+            
+            Assert.Single(RoleOwner.IdleColonists);
+        }
+        
+        [Fact]
+        public void CanPlaceIdleColonistToBuilding() {
+            var player = GetPlayerWithoutPrivilege();
+            Assert.Empty(player.Buildings);
+            player.Build(new Harbor());
+
+            var action = new PlaceColonist {
+                ToIndex = 0,
+                IsPlaceToTile = false
+            };
+            
+            CanExecuteActionOnce(action, player);
+            Assert.Empty(player.IdleColonists);
+            Assert.Single(player.Buildings.First().Workers);
         }
     }
 }
