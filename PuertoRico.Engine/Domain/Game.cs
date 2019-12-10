@@ -89,6 +89,10 @@ namespace PuertoRico.Engine.Domain
                     throw new InvalidOperationException("This game is full");
                 }
 
+                if (Players.Any(p => p.UserId == player.UserId)) {
+                    throw new InvalidOperationException("Player already joined to this game");
+                }
+
                 Players.Add(player);
             }
         }
