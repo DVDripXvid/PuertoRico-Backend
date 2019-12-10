@@ -7,6 +7,8 @@ namespace PuertoRico.Engine.SignalR
     {
         Task GameCreated(GameCreatedEvent ev);
 
+        Task GameDestroyed(GameDestroyedEvent ev);
+
         Task GameChanged(GameChangedEvent ev);
 
         Task GameEnded(GameEndedEvent ev);

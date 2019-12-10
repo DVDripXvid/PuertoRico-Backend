@@ -90,11 +90,20 @@ namespace PuertoRico.Engine.SignalR
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
-            var leftEvent = new PlayerLeftEvent() {
-                Player = PlayerDto.Create(player),
-                GameId = gameId
-            };
-            await Clients.Group(LobbyGroup).PlayerLeft(leftEvent);
+            if (game.Players.Any()) {
+                var leftEvent = new PlayerLeftEvent() {
+                    Player = PlayerDto.Create(player),
+                    GameId = gameId
+                };
+                await Clients.Group(LobbyGroup).PlayerLeft(leftEvent);
+            }
+            else {
+                _gameStore.Remove(gameId);
+                var removedEvent = new GameDestroyedEvent() {
+                    GameId = gameId
+                };
+                await Clients.Group(LobbyGroup).GameDestroyed(removedEvent);
+            }
         }
 
         public async Task StartGame(GenericGameCmd cmd) {
