@@ -4,6 +4,7 @@ using System.Linq;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Exceptions;
+using PuertoRico.Engine.Shuffling;
 using Toore.Shuffling;
 
 namespace PuertoRico.Engine.Domain.Tiles.Plantations
@@ -15,8 +16,8 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
         private List<IPlantation> _discard = new List<IPlantation>();
         private readonly int _visibleCount;
 
-        private static readonly IShuffler Shuffler = new FisherYatesShuffler(new RandomWrapper());
-        private readonly Random _random = new Random();
+        private readonly IShuffler _shuffler;
+        private readonly Random _random;
 
         private static readonly Dictionary<Type, int> Config = new Dictionary<Type, int> {
             {typeof(IndigoPlantation), 12},
@@ -26,14 +27,17 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
             {typeof(CoffeePlantation), 8},
         };
 
-        public PlantationDeck(int playerCount) {
+        public PlantationDeck(int playerCount, int randomSeed) {
+            _random = new Random(randomSeed);
+            _shuffler = new FisherYatesShuffler(new CustomRandomWrapper(_random));
+            
             _deck = new List<IPlantation>(Config.Values.Sum());
             _deck.AddRange(InitPlantationsForType<IndigoPlantation>(Config[typeof(IndigoPlantation)]));
             _deck.AddRange(InitPlantationsForType<SugarPlantation>(Config[typeof(SugarPlantation)]));
             _deck.AddRange(InitPlantationsForType<CornPlantation>(Config[typeof(CornPlantation)]));
             _deck.AddRange(InitPlantationsForType<TobaccoPlantation>(Config[typeof(TobaccoPlantation)]));
             _deck.AddRange(InitPlantationsForType<CoffeePlantation>(Config[typeof(CoffeePlantation)]));
-            _deck = _deck.Shuffle(Shuffler);
+            _deck = _deck.Shuffle(_shuffler);
 
             _visibleCount = playerCount + 1;
             Drawable = new IPlantation[_visibleCount];
@@ -81,7 +85,7 @@ namespace PuertoRico.Engine.Domain.Tiles.Plantations
         }
 
         private void ReUseDiscardPile() {
-            _discard = _discard.Shuffle(Shuffler);
+            _discard = _discard.Shuffle(_shuffler);
             _deck.AddRange(_discard);
             _discard.Clear();
         }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
@@ -16,7 +14,6 @@ using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
-using PuertoRico.Engine.Exceptions;
 
 namespace PuertoRico.Engine.Domain
 {
@@ -38,24 +35,33 @@ namespace PuertoRico.Engine.Domain
         public List<IRole> Roles { get; private set; }
         public bool IsStarted { get; private set; }
         public bool IsEnded { get; set; }
+        public int RandomSeed { get; private set; }
         public int PlayerCount => Players.Count;
         public bool IsFull => IsStarted || PlayerCount == GameConfig.MaxPlayer;
         private bool _isLastYear;
         private IPlayer _governor;
         private readonly object _syncRoot = new object();
-
+        
         public Game(string name = "DefaultGame") {
             Name = name;
             Players = new List<IPlayer>();
             Id = Guid.NewGuid().ToString();
+            RandomSeed = new Random().Next();
+        }
+        
+        public Game(string name, int randomSeed) {
+            Name = name;
+            Players = new List<IPlayer>();
+            Id = Guid.NewGuid().ToString();
+            RandomSeed = randomSeed;
         }
 
         public void Start() {
             if (PlayerCount < GameConfig.MinPlayer || PlayerCount > GameConfig.MaxPlayer) {
                 throw new InvalidOperationException("Invalid player count");
             }
-
-            PlantationDeck = new PlantationDeck(PlayerCount);
+            
+            PlantationDeck = new PlantationDeck(PlayerCount, RandomSeed);
 
             var colonistCount = GameConfig.ColonistCount[PlayerCount];
             Colonists = new Stack<Colonist>(colonistCount);

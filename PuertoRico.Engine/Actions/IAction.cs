@@ -1,10 +1,9 @@
-﻿using System.Text.Json.Serialization;
-using PuertoRico.Engine.SignalR;
+﻿using Newtonsoft.Json;
 
 namespace PuertoRico.Engine.Actions
 {
     public interface IAction
     {
-        ActionType ActionType { get; }
+        [JsonIgnore] ActionType ActionType { get; }
     }
 }
