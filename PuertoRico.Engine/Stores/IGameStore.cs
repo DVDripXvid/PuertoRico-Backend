@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.Domain.Player;
 
 namespace PuertoRico.Engine.Stores
 {
@@ -7,8 +9,10 @@ namespace PuertoRico.Engine.Stores
     {
         Game FindById(string gameId);
         IEnumerable<Game> FindNotStarted();
-        void Add(Game game);
-        void Remove(string gameId);
+        Task Add(Game game);
+        Task<Game> Remove(string gameId);
         IEnumerable<Game> FindByUserId(string userId);
+        Task JoinGame(string gameId, IPlayer player);
+        Task<IPlayer> LeaveGame(string gameId, string userId);
     }
 }

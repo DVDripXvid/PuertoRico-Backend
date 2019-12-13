@@ -60,7 +60,7 @@ namespace PuertoRico.Engine.SignalR
         public async Task CreateGame(CreateGameCmd cmd) {
             var player = CreatePlayerForCurrentUser();
             var game = new Game(cmd.Name);
-            _gameStore.Add(game);
+            await _gameStore.Add(game);
             game.Join(player);
             var gameCreatedEvent = new GameCreatedEvent {
                 GameId = game.Id,
@@ -74,8 +74,7 @@ namespace PuertoRico.Engine.SignalR
         public async Task JoinGame(GenericGameCmd cmd) {
             var gameId = cmd.GameId;
             var player = CreatePlayerForCurrentUser();
-            var game = _gameStore.FindById(gameId);
-            game.Join(player);
+            await _gameStore.JoinGame(gameId, player);
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
             var joinedEvent = new PlayerJoinedEvent {
                 Player = PlayerDto.Create(player),
@@ -87,8 +86,7 @@ namespace PuertoRico.Engine.SignalR
         public async Task LeaveGame(GenericGameCmd cmd) {
             var gameId = cmd.GameId;
             var game = _gameStore.FindById(gameId);
-            var player = game.Players.WithUserId(GetUserId());
-            game.Leave(player);
+            var player = await _gameStore.LeaveGame(gameId, GetUserId());
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
             if (game.Players.Any()) {
                 var leftEvent = new PlayerLeftEvent() {
@@ -98,7 +96,7 @@ namespace PuertoRico.Engine.SignalR
                 await Clients.Group(LobbyGroup).PlayerLeft(leftEvent);
             }
             else {
-                _gameStore.Remove(gameId);
+                await _gameStore.Remove(gameId);
                 var removedEvent = new GameDestroyedEvent() {
                     GameId = gameId
                 };
@@ -214,13 +212,9 @@ namespace PuertoRico.Engine.SignalR
         }
 
         private async Task SendAvailableActionTypes(Game game, string userId) {
-            var player = game.Players.First(p => p.UserId == userId);
-            var currentPlayer = game.GetCurrentPlayer();
-            var availableActions = currentPlayer == player
-                ? game.GetAvailableActionTypes(player)
-                : new HashSet<ActionType>();
+            var availableActions = await _gameService.GetAvailableActionTypeForUser(game, userId);
 
-            await Clients.Users(player.UserId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
+            await Clients.Users(userId).AvailableActionTypesChanged(new AvailableActionTypesChangedEvent {
                 GameId = game.Id,
                 ActionTypes = availableActions,
             });
@@ -231,7 +225,7 @@ namespace PuertoRico.Engine.SignalR
                 GameId = game.Id
             };
             await Clients.Groups(game.Id).GameEnded(endedEvent);
-            _gameStore.Remove(game.Id);
+             await _gameStore.Remove(game.Id);
         }
 
         private IPlayer CreatePlayerForCurrentUser() {

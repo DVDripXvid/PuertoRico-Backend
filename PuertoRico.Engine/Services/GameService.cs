@@ -47,9 +47,13 @@ namespace PuertoRico.Engine.Services
         }
 
         public Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId) {
-            var player = game.Players.WithUserId(userId);
             lock (game) {
-                return Task.FromResult<IEnumerable<ActionType>>(game.GetAvailableActionTypes(player));
+                var player = game.Players.WithUserId(userId);
+                var currentPlayer = game.GetCurrentPlayer();
+                var availableActions = currentPlayer == player
+                    ? game.GetAvailableActionTypes(player)
+                    : new HashSet<ActionType>();
+                return Task.FromResult<IEnumerable<ActionType>>(availableActions);
             }
         }
 

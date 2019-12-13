@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.Domain.Player;
 
 namespace PuertoRico.Engine.Services
 {
