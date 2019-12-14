@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using PuertoRico.Engine.Actions;
@@ -18,6 +19,7 @@ using PuertoRico.Engine.Stores;
 
 namespace PuertoRico.Engine.SignalR
 {
+    [Authorize]
     public class GameHub : Hub<IGameClient>, IGameHub
     {
         private readonly IReplayableGameService _gameService;

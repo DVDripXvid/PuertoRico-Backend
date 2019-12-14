@@ -84,6 +84,7 @@ namespace PuertoRico.Engine
 
             app.UseCors();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             if (env.IsDevelopment()) {
                 app.UseRouting();

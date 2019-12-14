@@ -39,11 +39,13 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
 
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
             loggerFactory.AddFile("Logs/PuertoRico-{Date}.txt");
-
+            
             app.Use((ctx, next) => {
                 ctx.User = new ClaimsPrincipal();
                 return next();
             });
+            app.UseAuthentication();
+            app.UseAuthorization();
             
             app.UseRouting();
             app.UseEndpoints(endpoints =>
