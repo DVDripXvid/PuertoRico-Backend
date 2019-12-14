@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuertoRico.Engine", "Puerto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuertoRico.Engine.Test", "PuertoRico.Engine.Test\PuertoRico.Engine.Test.csproj", "{C4984626-15DC-4273-BD71-AFBCBD136D83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuertoRico.TestClient", "PuertoRico.TestClient\PuertoRico.TestClient.csproj", "{DBA53D37-85AD-4351-A667-A71C7E793F98}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{C4984626-15DC-4273-BD71-AFBCBD136D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4984626-15DC-4273-BD71-AFBCBD136D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4984626-15DC-4273-BD71-AFBCBD136D83}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DBA53D37-85AD-4351-A667-A71C7E793F98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBA53D37-85AD-4351-A667-A71C7E793F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBA53D37-85AD-4351-A667-A71C7E793F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBA53D37-85AD-4351-A667-A71C7E793F98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
