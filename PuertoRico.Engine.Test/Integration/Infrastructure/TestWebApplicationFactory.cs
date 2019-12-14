@@ -13,6 +13,11 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
     {
         public FakeUserService FakeUserService = new FakeUserService();
 
+        public T GetService<T>() {
+            using var scope = Services.CreateScope();
+            return scope.ServiceProvider.GetService<T>();
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>

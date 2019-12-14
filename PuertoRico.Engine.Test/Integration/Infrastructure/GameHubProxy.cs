@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using PuertoRico.Engine.Actions;
-using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.DTOs;
 using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.SignalR.Commands;

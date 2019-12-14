@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Azure.Cosmos;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DTOs;
 using PuertoRico.Engine.SignalR;
@@ -12,10 +12,11 @@ using PuertoRico.Engine.SignalR.Commands;
 using PuertoRico.Engine.SignalR.Events;
 using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace PuertoRico.Engine.Test.Integration
 {
-    public abstract class TestBase
+    public abstract class TestBase : IDisposable
     {
         protected readonly TestWebApplicationFactory Factory;
         protected readonly Dictionary<string, GameHubProxy> Sessions = new Dictionary<string, GameHubProxy>();
@@ -71,6 +72,13 @@ namespace PuertoRico.Engine.Test.Integration
                 Action = new SelectRole {RoleIndex = roleIdx},
                 GameId = session.GameState.Id
             });
+        }
+
+        public void Dispose() {
+            var cosmos = Factory.GetService<CosmosClient>();
+            cosmos.GetContainer("Puerto", "Actions").DeleteContainerAsync().Wait();
+            cosmos.GetContainer("Puerto", "Games").DeleteContainerAsync().Wait();
+            Factory?.Dispose();
         }
     }
 }
