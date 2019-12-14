@@ -7,6 +7,10 @@ namespace PuertoRico.Engine.DAL
     {
         [JsonProperty("id")]
         public string Id { get; set; }
+        
+        [JsonProperty("_ts")]
+        public long TimeStamp { get; set; }
+
         public abstract PartitionKey GetPartitionKey();
     }
 }

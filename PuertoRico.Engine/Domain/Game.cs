@@ -49,10 +49,10 @@ namespace PuertoRico.Engine.Domain
             RandomSeed = new Random().Next();
         }
         
-        public Game(string name, int randomSeed) {
+        public Game(string id, string name, int randomSeed) {
             Name = name;
             Players = new List<IPlayer>();
-            Id = Guid.NewGuid().ToString();
+            Id = id;
             RandomSeed = randomSeed;
         }
 

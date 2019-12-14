@@ -47,13 +47,14 @@ namespace PuertoRico.Engine
                         "https://storagepuertodev.z16.web.core.windows.net"
                     )
                 ));
-            
+
             AddSignalR(services)
                 .AddJsonProtocol(c => c.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-            
+
             AddCosmos(services);
 
             services.AddTransient<IGameService, GameService>();
+            services.AddTransient<IReplayableGameService, ReplayableGameService>();
             services.AddSingleton<IGameStore, InMemoryGameStore>();
             services.AddSingleton<IUserService, UserService>();
 
@@ -88,7 +89,17 @@ namespace PuertoRico.Engine
             app.UseCors();
             app.UseAuthentication();
 
-            app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
+            if (env.IsDevelopment()) {
+                app.UseRouting();
+                app.UseEndpoints(endpoints => { endpoints.MapHub<GameHub>("game"); });
+            }
+            else {
+                app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
+            }
+
+            // trigger seeding the in memory store from db
+            using var scope = app.ApplicationServices.CreateScope();
+            scope.ServiceProvider.GetService<IGameStore>();
         }
 
         protected virtual void AddCosmos(IServiceCollection services) {
@@ -96,12 +107,12 @@ namespace PuertoRico.Engine
                 TypeNameHandling = TypeNameHandling.Objects
             };
             var client = new CosmosClientBuilder(
-                    Configuration["Azure:Cosmos:Endpoint"], 
+                    Configuration["Azure:Cosmos:Endpoint"],
                     Configuration["Azure:Cosmos:Key"])
                 .WithConnectionModeDirect()
                 .WithCustomSerializer(new NewtonsoftJsonCosmosSerializer(jsonSettings))
                 .Build();
-            
+
             services.AddSingleton(client);
         }
 

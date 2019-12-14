@@ -20,12 +20,12 @@ namespace PuertoRico.Engine.SignalR
 {
     public class GameHub : Hub<IGameClient>, IGameHub
     {
-        private readonly IGameService _gameService;
+        private readonly IReplayableGameService _gameService;
         private readonly IGameStore _gameStore;
         private readonly IUserService _userService;
         private const string LobbyGroup = "Lobby";
 
-        public GameHub(IGameService gameService, IGameStore gameStore, IUserService userService) {
+        public GameHub(IReplayableGameService gameService, IGameStore gameStore, IUserService userService) {
             _gameService = gameService;
             _gameStore = gameStore;
             _userService = userService;
@@ -61,7 +61,7 @@ namespace PuertoRico.Engine.SignalR
             var player = CreatePlayerForCurrentUser();
             var game = new Game(cmd.Name);
             await _gameStore.Add(game);
-            game.Join(player);
+            await _gameStore.JoinGame(game.Id, player);
             var gameCreatedEvent = new GameCreatedEvent {
                 GameId = game.Id,
                 GameName = game.Name,
@@ -107,7 +107,7 @@ namespace PuertoRico.Engine.SignalR
         public async Task StartGame(GenericGameCmd cmd) {
             var gameId = cmd.GameId;
             var game = _gameStore.FindById(gameId);
-            game.Start();
+            await _gameService.StartGame(game);
             var startedEvent = new GameStartedEvent {
                 GameId = gameId
             };
@@ -116,7 +116,7 @@ namespace PuertoRico.Engine.SignalR
                 Game = GameDto.Create(game)
             };
             await Clients.Group(gameId).GameChanged(changedEvent);
-            
+
             var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
             await Task.WhenAll(tasks);
         }
@@ -225,7 +225,7 @@ namespace PuertoRico.Engine.SignalR
                 GameId = game.Id
             };
             await Clients.Groups(game.Id).GameEnded(endedEvent);
-             await _gameStore.Remove(game.Id);
+            await _gameStore.Remove(game.Id);
         }
 
         private IPlayer CreatePlayerForCurrentUser() {

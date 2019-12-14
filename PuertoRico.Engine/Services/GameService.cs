@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Exceptions;
@@ -23,7 +24,6 @@ namespace PuertoRico.Engine.Services
                 }
 
                 game.CurrentRoleOwnerPlayer.Role.Execute(action, player);
-
                 EndRoleForPlayerIfNeeded(game, player);
             }
 
@@ -39,10 +39,14 @@ namespace PuertoRico.Engine.Services
 
                 var role = game.Roles[selectRole.RoleIndex];
                 player.SelectRole(role, game);
-
                 EndRoleForPlayerIfNeeded(game, player);
             }
 
+            return Task.CompletedTask;
+        }
+
+        public Task StartGame(Game game) {
+            game.Start();
             return Task.CompletedTask;
         }
 
@@ -58,9 +62,11 @@ namespace PuertoRico.Engine.Services
         }
 
         private void EndRoleForPlayerIfNeeded(Game game, IPlayer player) {
-            var availableActionTypes = game.GetAvailableActionTypes(player);
-            if (availableActionTypes.Count == 1 && availableActionTypes.Single() == ActionType.EndRole) {
-                game.CurrentRoleOwnerPlayer.Role.Execute(new EndRole(), player);
+            lock (game) {
+                var availableActionTypes = game.GetAvailableActionTypes(player);
+                if (availableActionTypes.Count == 1 && availableActionTypes.Single() == ActionType.EndRole) {
+                    game.CurrentRoleOwnerPlayer.Role.Execute(new EndRole(), player);
+                }
             }
         }
     }

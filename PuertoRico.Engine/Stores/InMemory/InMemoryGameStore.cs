@@ -2,16 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
+using PuertoRico.Engine.Domain.Tiles.Plantations;
 using PuertoRico.Engine.Exceptions;
 using PuertoRico.Engine.Extensions;
+using PuertoRico.Engine.Services;
 
 namespace PuertoRico.Engine.Stores.InMemory
 {
     public class InMemoryGameStore : IGameStore
     {
         private readonly Dictionary<string, Game> _games = new Dictionary<string, Game>();
+        private readonly IGameRepository _repository;
+        private readonly IGameService _gameService;
+        
+        public InMemoryGameStore(IGameRepository repository, IGameService gameService) {
+            _repository = repository;
+            _gameService = gameService;
+            InitializeGamesFromDb().Wait();
+        }
 
         public Game FindById(string gameId) {
             if (_games.ContainsKey(gameId)) {
@@ -25,19 +37,20 @@ namespace PuertoRico.Engine.Stores.InMemory
             return _games.Values.Where(g => !g.IsStarted);
         }
 
-        public Task Add(Game game) {
+        public async Task Add(Game game) {
             if (_games.ContainsKey(game.Id)) {
                 throw new InvalidOperationException("Game already added with id = " + game.Id);
             }
 
+            await _repository.CreateGame(GameEntity.Create(game));
             _games[game.Id] = game;
-            return Task.CompletedTask;
         }
 
-        public Task<Game> Remove(string gameId) {
+        public async Task<Game> Remove(string gameId) {
             if (_games.TryGetValue(gameId, out var game)) {
                 _games.Remove(gameId);
-                return Task.FromResult(game);
+                await _repository.DeleteGame(gameId, game.IsStarted);
+                return game;
             }
 
             throw new InvalidOperationException($"Game with id = {gameId} does not exist");
@@ -47,17 +60,46 @@ namespace PuertoRico.Engine.Stores.InMemory
             return _games.Values.Where(g => g.Players.Any(p => p.UserId == userId));
         }
 
-        public Task JoinGame(string gameId, IPlayer player) {
+        public async Task JoinGame(string gameId, IPlayer player) {
             var game = FindById(gameId);
             game.Join(player);
-            return Task.CompletedTask;
+
+            await _repository.ReplaceGame(GameEntity.Create(game));
         }
 
-        public Task<IPlayer> LeaveGame(string gameId, string userId) {
+        public async Task<IPlayer> LeaveGame(string gameId, string userId) {
             var game = FindById(gameId);
             var player = game.Players.WithUserId(userId);
             game.Leave(player);
-            return Task.FromResult(player);
+            
+            await _repository.ReplaceGame(GameEntity.Create(game));
+            return player;
+        }
+
+        private async Task InitializeGamesFromDb() {
+            var lobbyGames = await _repository.GetLobbyGames();
+            foreach (var lobbyGame in lobbyGames) {
+                var game = new Game(lobbyGame.Id, lobbyGame.Name, lobbyGame.RandomSeed);
+                lobbyGame.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username)));
+                _games.Add(game.Id, game);
+            }
+
+            var games = await _repository.GetStartedGames();
+            foreach (var gameEntity in games) {
+                var game = new Game(gameEntity.Id, gameEntity.Name, gameEntity.RandomSeed);
+                gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username)));
+                game.Start();
+                var actions = await _repository.GetActionsByGame(game.Id);
+                actions.ToList().ForEach(a => {
+                    if (a.Action is SelectRole selectRole) {
+                        _gameService.ExecuteSelectRole(game, a.UserId, selectRole);
+                    }
+                    else {
+                        _gameService.ExecuteRoleAction(game, a.UserId, a.Action);
+                    }
+                });
+                _games.Add(game.Id, game);
+            }
         }
     }
 }

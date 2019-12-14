@@ -11,10 +11,7 @@ namespace PuertoRico.Engine.DAL
         
         [JsonProperty]
         public string UserId { get; set; }
-        
-        [JsonProperty]
-        public long SeqNumber { get; set; }
-        
+
         [JsonProperty]
         public IAction Action { get; set; }
 

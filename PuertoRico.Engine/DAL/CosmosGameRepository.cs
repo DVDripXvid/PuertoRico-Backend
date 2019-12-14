@@ -22,7 +22,7 @@ namespace PuertoRico.Engine.DAL
                 .Result.Container;
 
             _gamesContainer = databaseResp.Database
-                .CreateContainerIfNotExistsAsync("Games", "/IsStarted")
+                .CreateContainerIfNotExistsAsync("Games", "/RandomSeed")
                 .Result.Container;
         }
 
@@ -32,7 +32,6 @@ namespace PuertoRico.Engine.DAL
                 GameId = gameId,
                 UserId = playerId,
                 Action = action,
-                SeqNumber = 21
             };
             await _actionsContainer.CreateItemAsync(item, item.GetPartitionKey());
         }
@@ -40,9 +39,8 @@ namespace PuertoRico.Engine.DAL
         public async Task<IEnumerable<ActionEntity>> GetActionsByGame(string gameId) {
             var query = _actionsContainer.GetItemLinqQueryable<ActionEntity>()
                 .Where(a => a.GameId == gameId)
+                .OrderBy(a => a.TimeStamp)
                 .ToFeedIterator();
-            /*var queryString = $"SELECT * FROM Actions a WHERE a.GameId = \"{gameId}\"";
-            var query = _actionsContainer.GetItemQueryIterator<ActionEntity>(new QueryDefinition(queryString));*/
             var results = await ExecuteQueryAsync(query);
             return results;
         }
