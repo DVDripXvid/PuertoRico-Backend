@@ -13,7 +13,7 @@ using PuertoRico.Engine.Domain.Tiles.Plantations;
 using PuertoRico.Engine.Extensions;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Roles
+namespace PuertoRico.Engine.UnitTest.Domain.Roles
 {
     public class CraftsmanTest : BaseRoleTest<Craftsman>
     {

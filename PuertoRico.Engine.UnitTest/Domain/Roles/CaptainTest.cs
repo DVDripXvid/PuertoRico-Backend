@@ -5,7 +5,7 @@ using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Exceptions;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Roles
+namespace PuertoRico.Engine.UnitTest.Domain.Roles
 {
     public class CaptainTest : BaseRoleTest<Captain>
     {

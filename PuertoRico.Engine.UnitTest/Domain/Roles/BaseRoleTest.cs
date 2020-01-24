@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Roles;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Roles
+namespace PuertoRico.Engine.UnitTest.Domain.Roles
 {
     public abstract class BaseRoleTest<T> where T : IRole
     {

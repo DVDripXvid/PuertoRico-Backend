@@ -1,14 +1,12 @@
 ﻿using System.Linq;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Buildings.Large;
-using PuertoRico.Engine.Domain.Buildings.Production;
 using PuertoRico.Engine.Domain.Buildings.Production.Large;
 using PuertoRico.Engine.Domain.Buildings.Production.Small;
 using PuertoRico.Engine.Domain.Player;
-using PuertoRico.Engine.Domain.Resources.Goods;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Buildings.Large
+namespace PuertoRico.Engine.UnitTest.Domain.Buildings.Large
 {
     public class GuildHallTest
     {

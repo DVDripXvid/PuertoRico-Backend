@@ -4,7 +4,7 @@ using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Resources;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Buildings.Large
+namespace PuertoRico.Engine.UnitTest.Domain.Buildings.Large
 {
     public class FortressTest
     {

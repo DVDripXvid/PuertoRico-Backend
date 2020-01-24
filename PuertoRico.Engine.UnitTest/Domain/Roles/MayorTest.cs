@@ -5,10 +5,9 @@ using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Resources;
 using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
-using PuertoRico.Engine.Domain.Tiles.Plantations;
 using Xunit;
 
-namespace PuertoRico.Engine.Test.Domain.Roles
+namespace PuertoRico.Engine.UnitTest.Domain.Roles
 {
     public class MayorTest : BaseRoleTest<Mayor>
     {
