@@ -11,16 +11,6 @@ pool:
 
 steps:
 
-- task: CosmosDbEmulator@2
-  displayName: Install CosmosDb Emulator
-  inputs:
-    containerName: 'azure-cosmosdb-emulator'
-    enableAPI: 'SQL'
-    portMapping: '8081:8081, 8901:8901, 8902:8902, 8979:8979, 10250:10250, 10251:10251, 10252:10252, 10253:10253, 10254:10254, 10255:10255, 10256:10256, 10350:10350'
-    hostDirectory: '$(Build.BinariesDirectory)\azure-cosmosdb-emulator'
-    partitionCount: '1'
-    defaultPartitionCount: '1'
-
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
@@ -39,7 +29,7 @@ steps:
   enabled: True
   inputs:
     command: test
-    projects: '*.Test/*.csproj'
+    projects: '*.UnitTest/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
