@@ -14,5 +14,9 @@ namespace PuertoRico.Engine.Test.Integration.Infrastructure
         public string GetUsername(HubCallerContext context) {
             return UserId;
         }
+
+        public string GetPictureUrl(HubCallerContext context) {
+            return "http://nopic.com";
+        }
     }
 }

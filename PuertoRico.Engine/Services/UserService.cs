@@ -19,5 +19,9 @@ namespace PuertoRico.Engine.Services
                    context.User.FindFirstValue(ClaimTypes.Name) ??
                    GetUserId(context);
         }
+
+        public string GetPictureUrl(HubCallerContext context) {
+            return context.User.FindFirstValue("picture");
+        }
     }
 }

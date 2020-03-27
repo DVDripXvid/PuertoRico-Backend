@@ -231,7 +231,7 @@ namespace PuertoRico.Engine.SignalR
         }
 
         private IPlayer CreatePlayerForCurrentUser() {
-            return new Player(GetUserId(), GetUserName());
+            return new Player(GetUserId(), GetUserName(), GetPictureUrl());
         }
 
         private string GetUserId() {
@@ -240,6 +240,10 @@ namespace PuertoRico.Engine.SignalR
 
         private string GetUserName() {
             return _userService.GetUsername(Context);
+        }
+
+        private string GetPictureUrl() {
+            return _userService.GetPictureUrl(Context);
         }
     }
 }

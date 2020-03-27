@@ -20,6 +20,7 @@ namespace PuertoRico.Engine.Domain.Player
         int Doubloons { get; set; }
         string UserId { get; }
         string Username { get; }
+        string PictureUrl { get; }
         void Build(IBuilding building);
         void Plant(ITile tile);
         void AddColonist(Colonist colonist);

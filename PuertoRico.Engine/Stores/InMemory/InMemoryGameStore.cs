@@ -80,14 +80,14 @@ namespace PuertoRico.Engine.Stores.InMemory
             var lobbyGames = await _repository.GetLobbyGames();
             foreach (var lobbyGame in lobbyGames) {
                 var game = new Game(lobbyGame.Id, lobbyGame.Name, lobbyGame.RandomSeed);
-                lobbyGame.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username)));
+                lobbyGame.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
                 _games.Add(game.Id, game);
             }
 
             var games = await _repository.GetStartedGames();
             foreach (var gameEntity in games) {
                 var game = new Game(gameEntity.Id, gameEntity.Name, gameEntity.RandomSeed);
-                gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username)));
+                gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
                 game.Start();
                 var actions = await _repository.GetActionsByGame(game.Id);
                 actions.ToList().ForEach(a => {

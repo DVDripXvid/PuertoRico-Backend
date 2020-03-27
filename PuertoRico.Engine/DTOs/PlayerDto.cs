@@ -8,6 +8,7 @@ namespace PuertoRico.Engine.DTOs
     {
         public string UserName { get; set; }
         public string UserId { get; set; }
+        public string PictureUrl { get; set; }
         public ICollection<BuildingDto> Buildings { get; set; }
         public ICollection<TileDto> Tiles { get; set; }
         public int IdleColonistCount { get; set; }
@@ -20,6 +21,7 @@ namespace PuertoRico.Engine.DTOs
             return new PlayerDto {
                 UserName = player.Username,
                 UserId = player.UserId,
+                PictureUrl = player.PictureUrl,
                 Buildings = player.Buildings
                     .Select(BuildingDto.Create)
                     .ToList(),

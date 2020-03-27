@@ -9,5 +9,6 @@ namespace PuertoRico.Engine.Services
     {
         string GetUserId(HubCallerContext context);
         string GetUsername(HubCallerContext context);
+        string GetPictureUrl(HubCallerContext context);
     }
 }

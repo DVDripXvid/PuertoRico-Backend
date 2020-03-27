@@ -17,9 +17,9 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
         public BaseRoleTest() {
             DoubloonsOnRole = 3;
             Game = new Game();
-            Game.Join(new Player("user1", "User 1"));
-            Game.Join(new Player("user2", "User 2"));
-            Game.Join(new Player("user3", "User 3"));
+            Game.Join(new Player("user1", "User 1", ""));
+            Game.Join(new Player("user2", "User 2", ""));
+            Game.Join(new Player("user3", "User 3", ""));
             Game.Start();
             Game.Players.ForEach(p => p.Doubloons = 0);
             Role = (T)Activator.CreateInstance(typeof(T), Game);

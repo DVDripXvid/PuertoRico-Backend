@@ -20,6 +20,7 @@ namespace PuertoRico.Engine.Domain.Player
         public List<IGood> Goods { get; } = new List<IGood>();
         public string UserId { get; }
         public string Username { get; }
+        public string PictureUrl  { get; }
 
         [Obsolete]
         public Player() {
@@ -27,9 +28,10 @@ namespace PuertoRico.Engine.Domain.Player
             Username = UserId;
         }
 
-        public Player(string userId, string username) {
+        public Player(string userId, string username, string pictureUrl) {
             UserId = userId;
             Username = username;
+            PictureUrl = pictureUrl;
         }
 
         public void Build(IBuilding building) {

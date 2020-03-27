@@ -33,7 +33,8 @@ namespace PuertoRico.Engine.DAL
                 RandomSeed = game.RandomSeed,
                 Players = game.Players.Select(p => new OwnedPlayerEntity {
                     Username = p.Username,
-                    UserId = p.UserId
+                    UserId = p.UserId,
+                    PictureUrl = p.PictureUrl,
                 }).ToList(),
                 IsStarted = game.IsStarted,
             };
@@ -44,5 +45,6 @@ namespace PuertoRico.Engine.DAL
     {
         public string UserId { get; set; }
         public string Username { get; set; }
+        public string PictureUrl { get; set; }
     }
 }
