@@ -6,6 +6,8 @@ namespace PuertoRico.Engine.DTOs
     {
         public string Name { get; set; }
         public int Cost { get; set; }
+        public int WorkerCapacity { get; set; }
+        public int WorkerCount { get; set; }
         public int VictoryPoint { get; set; }
         public int MaxDiscountByQuarry { get; set; }
         public int Index { get; set; }
@@ -14,6 +16,8 @@ namespace PuertoRico.Engine.DTOs
             return new BuildingDto {
                 Name = building.Name,
                 Cost = building.Cost,
+                WorkerCapacity = building.WorkerCapacity,
+                WorkerCount = building.Workers.Count,
                 VictoryPoint = building.VictoryPoint,
                 MaxDiscountByQuarry = building.MaxDiscountByQuarry,
                 Index = index,
