@@ -21,14 +21,16 @@ namespace PuertoRico.Engine
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration) {
+        public Startup(IConfiguration configuration)
+        {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services)
+        {
             services.AddMvc();
 
             services.AddApplicationInsightsTelemetry();
@@ -57,17 +59,21 @@ namespace PuertoRico.Engine
             services.AddSingleton<IGameRepository, CosmosGameRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(jwt => {
+                .AddJwtBearer(jwt =>
+                {
                     jwt.Audience = "178792157062-b5jtd265enrjn20s04hqtfntm9esshrf.apps.googleusercontent.com";
                     jwt.Authority = "https://accounts.google.com";
-                    jwt.TokenValidationParameters = new TokenValidationParameters {
+                    jwt.TokenValidationParameters = new TokenValidationParameters
+                    {
                         ValidateIssuer = true,
                         ValidIssuers = new[] {"https://accounts.google.com", "accounts.google.com"},
                         ValidateAudience = true,
                         ValidAudience = "178792157062-b5jtd265enrjn20s04hqtfntm9esshrf.apps.googleusercontent.com",
                     };
-                    jwt.Events = new JwtBearerEvents {
-                        OnMessageReceived = ctx => {
+                    jwt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = ctx =>
+                        {
                             var accessToken = ctx.Request.Query["access_token"];
                             ctx.Token = accessToken;
                             return Task.CompletedTask;
@@ -77,30 +83,29 @@ namespace PuertoRico.Engine
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
-            if (env.IsDevelopment()) {
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        {
+            if (env.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
             }
 
             app.UseCors();
             app.UseAuthentication();
-            app.UseAuthorization();
 
-            if (env.IsDevelopment()) {
-                app.UseRouting();
-                app.UseEndpoints(endpoints => { endpoints.MapHub<GameHub>("game"); });
-            }
-            else {
-                app.UseAzureSignalR(routes => { routes.MapHub<GameHub>("/game"); });
-            }
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => { endpoints.MapHub<GameHub>("game"); });
 
             // trigger seeding the in memory store from db
             using var scope = app.ApplicationServices.CreateScope();
             scope.ServiceProvider.GetService<IGameStore>();
         }
 
-        protected virtual void AddCosmos(IServiceCollection services) {
-            var jsonSettings = new JsonSerializerSettings {
+        protected virtual void AddCosmos(IServiceCollection services)
+        {
+            var jsonSettings = new JsonSerializerSettings
+            {
                 TypeNameHandling = TypeNameHandling.Objects
             };
             var client = new CosmosClientBuilder(
@@ -113,7 +118,8 @@ namespace PuertoRico.Engine
             services.AddSingleton(client);
         }
 
-        protected virtual ISignalRServerBuilder AddSignalR(IServiceCollection services) {
+        protected virtual ISignalRServerBuilder AddSignalR(IServiceCollection services)
+        {
             return services.AddSignalR()
                 .AddAzureSignalR();
         }
