@@ -12,6 +12,6 @@ namespace PuertoRico.Engine.DAL
         Task<IEnumerable<GameEntity>> GetLobbyGames();
         Task CreateGame(GameEntity gameEntity);
         Task ReplaceGame(GameEntity gameEntity);
-        Task DeleteGame(string gameId, bool isStarted);
+        Task DeleteGame(string gameId, int randomSeed);
     }
 }

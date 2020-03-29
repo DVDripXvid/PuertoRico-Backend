@@ -49,7 +49,7 @@ namespace PuertoRico.Engine.Stores.InMemory
         public async Task<Game> Remove(string gameId) {
             if (_games.TryGetValue(gameId, out var game)) {
                 _games.Remove(gameId);
-                await _repository.DeleteGame(gameId, game.IsStarted);
+                await _repository.DeleteGame(gameId, game.RandomSeed);
                 return game;
             }
 

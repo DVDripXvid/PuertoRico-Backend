@@ -61,8 +61,8 @@ namespace PuertoRico.Engine.DAL
             await _gamesContainer.ReplaceItemAsync(gameEntity, gameEntity.Id, gameEntity.GetPartitionKey());
         }
 
-        public async Task DeleteGame(string gameId, bool isStarted) {
-            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(isStarted));
+        public async Task DeleteGame(string gameId, int randomSeed) {
+            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(randomSeed));
             // action deletion is implemented as cosmos trigger & stored procedure
         }
         
