@@ -10,6 +10,7 @@ namespace PuertoRico.Engine.DTOs
         public int WorkerCount { get; set; }
         public int VictoryPoint { get; set; }
         public int MaxDiscountByQuarry { get; set; }
+        public BuildingType Type { get; set; }
         public int Index { get; set; }
 
         public static BuildingDto Create(IBuilding building, int index) {
@@ -20,6 +21,7 @@ namespace PuertoRico.Engine.DTOs
                 WorkerCount = building.Workers.Count,
                 VictoryPoint = building.VictoryPoint,
                 MaxDiscountByQuarry = building.MaxDiscountByQuarry,
+                Type = building.Type,
                 Index = index,
             };
         }

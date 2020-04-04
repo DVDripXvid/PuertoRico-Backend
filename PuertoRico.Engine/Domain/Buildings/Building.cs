@@ -12,6 +12,7 @@ namespace PuertoRico.Engine.Domain.Buildings
         public List<Colonist> Workers { get; } = new List<Colonist>();
         public string Name => GetType().Name;
         public abstract int MaxDiscountByQuarry { get; }
+        public abstract BuildingType Type { get; }
         public abstract int WorkerCapacity { get; }
 
         public void AddWorker(Colonist colonist) {
