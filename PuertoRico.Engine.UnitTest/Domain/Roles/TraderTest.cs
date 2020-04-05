@@ -30,6 +30,17 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
         }
 
         [Fact]
+        public void CannotSellTwice() {
+            RoleOwner.Goods.Add(new Coffee());
+            RoleOwner.Goods.Add(new Sugar());
+            ReselectRole();
+            var action = new SellGood {
+                GoodType = GoodType.Coffee
+            };
+            CanExecuteActionOnce(action, RoleOwner);
+        }
+
+        [Fact]
         public void SameGoodCannotBeSold() {
             var player = GetPlayerWithoutPrivilege();
             RoleOwner.Goods.Add(new Coffee());

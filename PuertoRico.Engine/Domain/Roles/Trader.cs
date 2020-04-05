@@ -65,6 +65,8 @@ namespace PuertoRico.Engine.Domain.Roles
             player.Goods.Remove(good);
             var income = _tradeHouse.Sell(good);
             player.Doubloons += income + CalculateIncomeBonusFor(player);
+            
+            SetPlayerPhase(player, EndedPhase);
         }
 
         private int CalculateIncomeBonusFor(IPlayer player) {
