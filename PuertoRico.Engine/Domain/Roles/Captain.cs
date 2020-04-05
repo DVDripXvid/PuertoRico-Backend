@@ -112,7 +112,7 @@ namespace PuertoRico.Engine.Domain.Roles
             var deliveredGoods = goodsToDeliver.Take(deliveredCount).ToList();
             DoDeliver(deliveredGoods, player);
 
-            if (IsAbleToUseCargoShip(player) && IsAbleToUseWharf(player)) {
+            if (IsAbleToUseCargoShip(player) || IsAbleToUseWharf(player)) {
                 MoveToNextPlayer();
             }
             else if (player.Goods.Count > 0) {

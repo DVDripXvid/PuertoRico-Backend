@@ -32,7 +32,20 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
             Assert.Empty(RoleOwner.Goods);
             Assert.Equal(3, RoleOwner.VictoryPointChips.Count);
         }
-        
+
+        [Fact]
+        public void CanShipMultipleTimes() {
+            RoleOwner.Goods.Add(new Coffee());
+            RoleOwner.Goods.Add(new Sugar());
+            ReselectRole();
+            var action = new DeliverGoods {
+                GoodType = GoodType.Coffee,
+                ShipCapacity = 4,
+            };
+            
+            CanExecuteActionMultiple(action, RoleOwner);
+        }
+
         [Fact]
         public void CannotLoadDifferentTypeOnSameShip() {
             RoleOwner.Goods.Add(new Tobacco());
