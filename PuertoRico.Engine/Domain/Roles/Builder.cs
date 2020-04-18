@@ -47,8 +47,8 @@ namespace PuertoRico.Engine.Domain.Roles
 
         private void ExecuteBuild(Build build, IPlayer player) {
             var building = Game.Buildings[build.BuildingIndex];
-            var quarryCount = player.Tiles.Quarries.Count();
-            var price = building.Cost - Math.Min(quarryCount, building.MaxDiscountByQuarry);
+            var workingQuarryCount = player.Tiles.Quarries.Count(q => q.Worker != null);
+            var price = building.Cost - Math.Min(workingQuarryCount, building.MaxDiscountByQuarry);
             if (HasPrivilege(player)) {
                 price = Math.Max(0, price - 1);
             }
