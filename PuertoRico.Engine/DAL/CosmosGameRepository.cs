@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 
 namespace PuertoRico.Engine.DAL
@@ -13,8 +14,13 @@ namespace PuertoRico.Engine.DAL
     {
         private readonly Container _actionsContainer;
         private readonly Container _gamesContainer;
+        private readonly ILogger<CosmosGameRepository> _logger;
 
-        public CosmosGameRepository(CosmosClient dbClient) {
+        public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger) {
+            _logger = logger;
+            
+            logger.LogWarning("Trying to connect cosmos endpoint: " + dbClient.Endpoint);
+            
             var databaseResp = dbClient.CreateDatabaseIfNotExistsAsync("Puerto").Result;
 
             _actionsContainer = databaseResp.Database
@@ -55,6 +61,8 @@ namespace PuertoRico.Engine.DAL
 
         public async Task CreateGame(GameEntity gameEntity) {
             await _gamesContainer.CreateItemAsync(gameEntity, gameEntity.GetPartitionKey());
+            
+            _logger.LogWarning("Game created: " + gameEntity.Name);
         }
 
         public async Task ReplaceGame(GameEntity gameEntity) {
