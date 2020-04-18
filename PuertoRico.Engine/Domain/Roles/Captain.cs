@@ -92,7 +92,11 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         protected override string GetInitialPhase(IPlayer player) {
-            return (IsAbleToUseCargoShip(player) || IsAbleToUseWharf(player)) ? DeliverPhase : EndedPhase;
+            if (IsAbleToUseCargoShip(player) || IsAbleToUseWharf(player)) {
+                return DeliverPhase;
+            }
+
+            return player.Goods.Any() ? StorePhase : EndedPhase;
         }
 
         private void ExecuteDeliverGoods(DeliverGoods deliverGoods, IPlayer player) {
@@ -105,7 +109,7 @@ namespace PuertoRico.Engine.Domain.Roles
             if (goodsToDeliver.Count == 0) {
                 throw new GameException($"no {deliverGoods.GoodType} barrels");
             }
-            
+
             CheckPlayerCanLoadToShip(player, goodsToDeliver, cargo);
 
             var deliveredCount = cargo.Load(goodsToDeliver);
@@ -154,8 +158,12 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             if (storeGoods.DefaultStorage.HasValue) {
-                _defaultStore[player.UserId] =
+                var goodToStore =
                     player.Goods.FirstOrDefault(g => g.Type == storeGoods.DefaultStorage.Value);
+                if (goodToStore != null) {
+                    _defaultStore[player.UserId] = goodToStore;
+                    player.Goods.Remove(goodToStore);
+                }
             }
 
             SetPlayerPhase(player, EndedPhase);
@@ -169,9 +177,10 @@ namespace PuertoRico.Engine.Domain.Roles
 
             var typedShip = GetCargoShipWithGoodTypeOrDefault(goodType);
             if (typedShip != null && typedShip != cargoShip) {
-                throw new GameException($"{goodType} barrels already loaded to ship with capacity {typedShip.Capacity}");
+                throw new GameException(
+                    $"{goodType} barrels already loaded to ship with capacity {typedShip.Capacity}");
             }
-            
+
             if (typedShip == null
                 && goods.Count > cargoShip.Capacity
                 && Game.CargoShips.Exists(ship => ship.Capacity > cargoShip.Capacity && ship.CanBeLoaded(goodType))) {
@@ -188,7 +197,7 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         private bool CanBeLoaded(GoodType goodType) {
-            return GetCargoShipWithGoodTypeOrDefault(goodType)?.IsNotFull() 
+            return GetCargoShipWithGoodTypeOrDefault(goodType)?.IsNotFull()
                    ?? Game.CargoShips.Exists(ship => ship.CanBeLoaded(goodType));
         }
 
@@ -235,6 +244,7 @@ namespace PuertoRico.Engine.Domain.Roles
                     vpList.Add(new VictoryPointChip());
                 }
             }
+
             player.VictoryPointChips.AddRange(vpList);
             Game.VictoryPointChips.RemoveRange(0, vpList.Count);
         }
