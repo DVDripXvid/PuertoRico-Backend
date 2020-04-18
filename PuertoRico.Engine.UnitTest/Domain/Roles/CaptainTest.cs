@@ -249,5 +249,47 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
             Assert.Equal(indigoCount + cornCount, RoleOwner.Goods.Count);
         }
 
+        [Fact]
+        public void FullShipIsCleared() {
+            var goodCount = 4;
+            for (var i = 0; i < goodCount; i++) {
+                RoleOwner.Goods.Add(new Indigo());
+            }
+            
+            ReselectRole();
+            var gameGoodCount = Game.Goods.Count;
+
+            var action = new DeliverGoods {
+                GoodType = GoodType.Indigo,
+                ShipCapacity = goodCount
+            };
+            CanExecuteActionOnce(action, RoleOwner);
+            
+            Role.CleanUp();
+            Assert.True(Game.CargoShips[0].IsEmpty());
+            Assert.Equal(gameGoodCount + goodCount, Game.Goods.Count);
+        }
+        
+        [Fact]
+        public void NotFullShipIsNotCleared() {
+            var goodCount = 2;
+            for (var i = 0; i < goodCount; i++) {
+                RoleOwner.Goods.Add(new Indigo());
+            }
+            
+            ReselectRole();
+            var gameGoodCount = Game.Goods.Count;
+
+            var action = new DeliverGoods {
+                GoodType = GoodType.Indigo,
+                ShipCapacity = 4
+            };
+            CanExecuteActionOnce(action, RoleOwner);
+            
+            Role.CleanUp();
+            Assert.False(Game.CargoShips[0].IsEmpty());
+            Assert.Equal(gameGoodCount, Game.Goods.Count);
+        }
+
     }
 }

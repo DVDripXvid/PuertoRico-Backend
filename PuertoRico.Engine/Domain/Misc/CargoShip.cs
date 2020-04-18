@@ -47,5 +47,11 @@ namespace PuertoRico.Engine.Domain.Misc
 
             return 0;
         }
+
+        public List<IGood> ReleaseLoadedGoods() {
+            var releasedGoods = new List<IGood>(_goods);
+            _goods.Clear();
+            return releasedGoods;
+        }
     }
 }

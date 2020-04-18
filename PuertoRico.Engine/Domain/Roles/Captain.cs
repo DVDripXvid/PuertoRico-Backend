@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.IdentityModel.Tokens;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Misc;
@@ -33,6 +34,13 @@ namespace PuertoRico.Engine.Domain.Roles
             Game.Players.ForEach(p => {
                 p.Goods.Clear();
                 ReleaseStoredGoods(p);
+            });
+            
+            Game.CargoShips.ForEach(ship => {
+                if (ship.IsFull()) {
+                    var releasedGoods = ship.ReleaseLoadedGoods();
+                    Game.Goods.AddRange(releasedGoods);
+                }
             });
         }
 
@@ -226,7 +234,6 @@ namespace PuertoRico.Engine.Domain.Roles
         private void DoDeliver(ICollection<IGood> deliveredGoods, IPlayer player) {
             var deliveredCount = deliveredGoods.Count;
             player.Goods.RemoveAll(deliveredGoods.Contains);
-            Game.Goods.AddRange(deliveredGoods);
             var vpCount = deliveredCount;
             if (HasPrivilege(player) && !_isPrivilegeUsed) {
                 _isPrivilegeUsed = true;
