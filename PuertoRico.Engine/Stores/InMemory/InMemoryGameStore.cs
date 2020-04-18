@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
@@ -18,10 +19,13 @@ namespace PuertoRico.Engine.Stores.InMemory
         private readonly Dictionary<string, Game> _games = new Dictionary<string, Game>();
         private readonly IGameRepository _repository;
         private readonly IGameService _gameService;
-        
-        public InMemoryGameStore(IGameRepository repository, IGameService gameService) {
+        private readonly ILogger<InMemoryGameStore> _logger;
+
+        public InMemoryGameStore(IGameRepository repository, IGameService gameService,
+            ILogger<InMemoryGameStore> logger) {
             _repository = repository;
             _gameService = gameService;
+            _logger = logger;
             InitializeGamesFromDb().Wait();
         }
 
@@ -71,7 +75,7 @@ namespace PuertoRico.Engine.Stores.InMemory
             var game = FindById(gameId);
             var player = game.Players.WithUserId(userId);
             game.Leave(player);
-            
+
             await _repository.ReplaceGame(GameEntity.Create(game));
             return player;
         }
@@ -90,15 +94,25 @@ namespace PuertoRico.Engine.Stores.InMemory
                 gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
                 game.Start();
                 var actions = await _repository.GetActionsByGame(game.Id);
-                actions.ToList().ForEach(a => {
-                    if (a.Action is SelectRole selectRole) {
-                        _gameService.ExecuteSelectRole(game, a.UserId, selectRole);
+                var isValidGame = true;
+                foreach (var a in actions.ToList()) {
+                    try {
+                        if (a.Action is SelectRole selectRole) {
+                            await _gameService.ExecuteSelectRole(game, a.UserId, selectRole);
+                        }
+                        else {
+                            await _gameService.ExecuteRoleAction(game, a.UserId, a.Action);
+                        }
                     }
-                    else {
-                        _gameService.ExecuteRoleAction(game, a.UserId, a.Action);
+                    catch (Exception e) {
+                        _logger.LogError(e, $"Failed to replay {a.Action.ActionType} action. gameId={game.Id} userId={a.UserId}, timestamp={a.TimeStamp}");
+                        _logger.LogError($"Failed to initialize game: ${game.Name} (${game.Id})");
+                        isValidGame = false;
+                        break;
                     }
-                });
-                _games.Add(game.Id, game);
+                }
+
+                if (isValidGame) _games.Add(game.Id, game);
             }
         }
     }
