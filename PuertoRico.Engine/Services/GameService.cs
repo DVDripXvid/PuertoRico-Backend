@@ -54,6 +54,9 @@ namespace PuertoRico.Engine.Services
             lock (game) {
                 var player = game.Players.WithUserId(userId);
                 var currentPlayer = game.GetCurrentPlayer();
+                if (currentPlayer == player) {
+                    EndRoleForPlayerIfNeeded(game, player);
+                }
                 var availableActions = currentPlayer == player
                     ? game.GetAvailableActionTypes(player)
                     : new HashSet<ActionType>();
