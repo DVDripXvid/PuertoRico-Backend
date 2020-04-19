@@ -42,7 +42,8 @@ namespace PuertoRico.Engine
                     .AllowAnyMethod()
                     .WithOrigins(
                         "http://localhost:3000",
-                        "https://storagepuertodev.z16.web.core.windows.net"
+                        "https://storagepuertodev.z16.web.core.windows.net",
+                        "https://storagepuertodevstage.z16.web.core.windows.net"
                     )
                 ));
 
@@ -118,8 +119,7 @@ namespace PuertoRico.Engine
             services.AddSingleton(client);
         }
 
-        protected virtual ISignalRServerBuilder AddSignalR(IServiceCollection services)
-        {
+        protected virtual ISignalRServerBuilder AddSignalR(IServiceCollection services) {
             return services.AddSignalR()
                 .AddAzureSignalR();
         }
