@@ -56,9 +56,9 @@ namespace PuertoRico.Engine.Domain.Roles
                 throw new GameException($"Insufficient funds");
             }
 
-            player.Doubloons -= price;
-            Game.Buildings.Remove(building);
             player.Build(building);
+            Game.Buildings.Remove(building);
+            player.Doubloons -= price;
             if (player.Buildings.IsFull()) {
                 Game.SendShouldFinishSignal();
             }
