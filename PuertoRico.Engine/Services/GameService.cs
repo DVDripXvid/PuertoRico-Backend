@@ -24,7 +24,7 @@ namespace PuertoRico.Engine.Services
                 }
 
                 game.CurrentRoleOwnerPlayer.Role.Execute(action, player);
-                EndRoleForPlayerIfNeeded(game, player);
+                EndRoleForCurrentPlayerIfNeeded(game);
             }
 
             return Task.CompletedTask;
@@ -39,7 +39,7 @@ namespace PuertoRico.Engine.Services
 
                 var role = game.Roles[selectRole.RoleIndex];
                 player.SelectRole(role, game);
-                EndRoleForPlayerIfNeeded(game, player);
+                EndRoleForCurrentPlayerIfNeeded(game);
             }
 
             return Task.CompletedTask;
@@ -54,9 +54,6 @@ namespace PuertoRico.Engine.Services
             lock (game) {
                 var player = game.Players.WithUserId(userId);
                 var currentPlayer = game.GetCurrentPlayer();
-                if (currentPlayer == player) {
-                    EndRoleForPlayerIfNeeded(game, player);
-                }
                 var availableActions = currentPlayer == player
                     ? game.GetAvailableActionTypes(player)
                     : new HashSet<ActionType>();
@@ -64,11 +61,14 @@ namespace PuertoRico.Engine.Services
             }
         }
 
-        private void EndRoleForPlayerIfNeeded(Game game, IPlayer player) {
+        private void EndRoleForCurrentPlayerIfNeeded(Game game) {
             lock (game) {
+                var player = game.GetCurrentPlayer();
                 var availableActionTypes = game.GetAvailableActionTypes(player);
-                if (availableActionTypes.Count == 1 && availableActionTypes.Single() == ActionType.EndRole) {
+                while (availableActionTypes.Count == 1 && availableActionTypes.Single() == ActionType.EndRole) {
                     game.CurrentRoleOwnerPlayer.Role.Execute(new EndRole(), player);
+                    player = game.GetCurrentPlayer();
+                     availableActionTypes = game.GetAvailableActionTypes(player);
                 }
             }
         }
