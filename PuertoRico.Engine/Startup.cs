@@ -116,7 +116,10 @@ namespace PuertoRico.Engine
 
         protected virtual ISignalRServerBuilder AddSignalR(IServiceCollection services) {
             return services.AddSignalR()
-                .AddAzureSignalR(opts => { opts.ConnectionCount = 2; });
+                .AddAzureSignalR(opts => {
+                    opts.ServerStickyMode = ServerStickyMode.Required;
+                    opts.ConnectionCount = 2;
+                });
         }
     }
 }
