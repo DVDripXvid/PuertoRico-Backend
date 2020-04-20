@@ -16,7 +16,7 @@ namespace PuertoRico.Engine.DTOs
         public ICollection<PlayerDto> Players { get; set; }
         public PlayerDto CurrentPlayer { get; set; }
         public RoleDto CurrentRole { get; set; }
-        public ColonistsShipDto ColonistsShip { get; set; }
+        public ColonistShipDto ColonistShip { get; set; }
         public TradeHouseDto TradeHouse { get; set; }
         public int CornCount { get; set; }
         public int IndigoCount { get; set; }
@@ -44,7 +44,7 @@ namespace PuertoRico.Engine.DTOs
                 Players = game.Players.Select(PlayerDto.Create).ToList(),
                 CurrentPlayer = PlayerDto.Create(currentPlayer),
                 CurrentRole = RoleDto.Create(game.CurrentRoleOwnerPlayer.Role, -1),
-                ColonistsShip = ColonistsShipDto.Create(game.ColonistsShip),
+                ColonistShip = ColonistShipDto.Create(game.ColonistShip),
                 TradeHouse = TradeHouseDto.Create(game.TradeHouse),
                 CornCount = game.Goods.Count(g => g.Type == GoodType.Corn),
                 IndigoCount = game.Goods.Count(g => g.Type == GoodType.Indigo),

@@ -5,14 +5,14 @@ using PuertoRico.Engine.Domain.Resources;
 
 namespace PuertoRico.Engine.Domain.Misc
 {
-    public class ColonistsShip
+    public class ColonistShip
     {
         public int ColonistCount => _colonists.Count;
         
         private int _capacity;
         private readonly Stack<Colonist> _colonists;
 
-        public ColonistsShip(Game game) {
+        public ColonistShip(Game game) {
             _capacity = game.PlayerCount;
             _colonists = new Stack<Colonist>(_capacity);
             Refill(game);

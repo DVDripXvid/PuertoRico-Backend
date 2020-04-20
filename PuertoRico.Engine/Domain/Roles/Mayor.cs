@@ -17,7 +17,7 @@ namespace PuertoRico.Engine.Domain.Roles
                 roleOwner.AddColonist(Game.Colonists.Pop());
             }
 
-            var ship = Game.ColonistsShip;
+            var ship = Game.ColonistShip;
             var currentPlayer = roleOwner;
             while (!ship.IsEmpty()) {
                 var colonist = ship.TakeColonist();
@@ -28,7 +28,7 @@ namespace PuertoRico.Engine.Domain.Roles
 
         public override void CleanUp() {
             base.CleanUp();
-            Game.ColonistsShip.RecalculateCapacityAndRefill(Game);
+            Game.ColonistShip.RecalculateCapacityAndRefill(Game);
         }
 
         protected override void ExecuteInternal(IAction action, IPlayer player, string playerPhase) {

@@ -66,8 +66,8 @@ namespace PuertoRico.Engine.Domain.Roles
             if (player.Buildings.ContainsWorkingOfType<University>()) {
                 if (Game.Colonists.Count > 0) {
                     building.AddWorker(Game.Colonists.Pop());
-                } else if (!Game.ColonistsShip.IsEmpty()) {
-                    building.AddWorker(Game.ColonistsShip.TakeColonist());
+                } else if (!Game.ColonistShip.IsEmpty()) {
+                    building.AddWorker(Game.ColonistShip.TakeColonist());
                 }
             }
             

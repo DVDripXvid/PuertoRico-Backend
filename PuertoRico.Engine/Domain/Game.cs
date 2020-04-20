@@ -28,7 +28,7 @@ namespace PuertoRico.Engine.Domain
         public Stack<Quarry> Quarries { get; private set; }
         public List<IPlayer> Players { get; }
         public IPlayer CurrentRoleOwnerPlayer { get; private set; }
-        public ColonistsShip ColonistsShip { get; private set; }
+        public ColonistShip ColonistShip { get; private set; }
         public TradeHouse TradeHouse { get; } = new TradeHouse();
         public List<IGood> Goods { get; private set; }
         public List<CargoShip> CargoShips { get; private set; }
@@ -78,7 +78,7 @@ namespace PuertoRico.Engine.Domain
             Buildings = InitializeBuildings();
             _governor = Players.First();
             CurrentRoleOwnerPlayer = _governor;
-            ColonistsShip = new ColonistsShip(this);
+            ColonistShip = new ColonistShip(this);
             Goods = InitializeGoods();
             CargoShips = InitializeCargoShips(PlayerCount);
             VictoryPointChips = InitializeVictoryPointChips(PlayerCount);

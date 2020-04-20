@@ -22,13 +22,13 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
             Assert.Equal(2, RoleOwner.IdleColonists.Count);
             var expectedColonistCount = GameConfig.ColonistCount[Game.PlayerCount] - (Game.PlayerCount + 1);
             Assert.Equal(expectedColonistCount, Game.Colonists.Count);
-            Assert.True(Game.ColonistsShip.IsEmpty());
+            Assert.True(Game.ColonistShip.IsEmpty());
         }
         
         [Fact]
         public void ColonistShipRefilledOnCleanUp() {
             Role.CleanUp();
-            Assert.False(Game.ColonistsShip.IsEmpty());
+            Assert.False(Game.ColonistShip.IsEmpty());
         }
         
         [Fact]
