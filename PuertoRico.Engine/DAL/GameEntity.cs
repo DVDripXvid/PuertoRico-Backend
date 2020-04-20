@@ -19,14 +19,14 @@ namespace PuertoRico.Engine.DAL
 
         [JsonProperty] public int RandomSeed { get; set; }
 
-        [JsonProperty] public string OwnerApplication { get; set; }
+        [JsonProperty] public string Endpoint { get; set; }
 
         public override PartitionKey GetPartitionKey() {
             return new PartitionKey(Id);
         }
 
         public Game ToModel() {
-            var game = new Game(Id, Name, RandomSeed) {OwnerApplication = OwnerApplication};
+            var game = new Game(Id, Name, RandomSeed) {Endpoint = Endpoint};
             Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
             return game;
         }
@@ -42,7 +42,7 @@ namespace PuertoRico.Engine.DAL
                     PictureUrl = p.PictureUrl,
                 }).ToList(),
                 IsStarted = game.IsStarted,
-                OwnerApplication = game.OwnerApplication
+                Endpoint = game.Endpoint
             };
         }
     }

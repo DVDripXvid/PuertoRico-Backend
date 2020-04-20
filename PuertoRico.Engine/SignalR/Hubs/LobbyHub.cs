@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
@@ -22,21 +21,18 @@ namespace PuertoRico.Engine.SignalR.Hubs
         private readonly IInProgressGameStore _inprogressGameStore;
         private readonly IUserService _userService;
         private const string LobbyGroup = "Lobby";
-        private readonly string _endpointUrl;
 
-        public LobbyHub(IGameRepository repository, IUserService userService, IInProgressGameStore inprogressGameStore,
-            IConfiguration configuration) {
+        public LobbyHub(IGameRepository repository, IUserService userService, IInProgressGameStore inprogressGameStore) {
             _repository = repository;
             _userService = userService;
             _inprogressGameStore = inprogressGameStore;
-            _endpointUrl = configuration["PublicUrl"] + "/game";
         }
 
         public override async Task OnConnectedAsync() {
             await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
             var games = await _repository.GetStartedGamesByPlayer(GetUserId());
             foreach (var game in games.Select(g => g.ToModel())) {
-                await Clients.Caller.GameStarted(new GameStartedEvent {Game = GameSummaryDto.Create(game, _endpointUrl)});
+                await Clients.Caller.GameStarted(new GameStartedEvent {Game = GameSummaryDto.Create(game)});
             }
 
             var lobbyGames = await _repository.GetLobbyGames();
@@ -109,7 +105,7 @@ namespace PuertoRico.Engine.SignalR.Hubs
             _inprogressGameStore.Add(game);
 
             var startedEvent = new GameStartedEvent {
-                Game = GameSummaryDto.Create(game, _endpointUrl)
+                Game = GameSummaryDto.Create(game)
             };
             await Clients.Group(LobbyGroup).GameStarted(startedEvent);
         }

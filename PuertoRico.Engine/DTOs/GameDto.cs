@@ -26,6 +26,7 @@ namespace PuertoRico.Engine.DTOs
         public ICollection<CargoShipDto> CargoShips { get; set; }
         public int VictoryPoints { get; set; }
         public ICollection<RoleDto> SelectableRoles { get; set; }
+        public string Endpoint { get; set; }
 
         public static GameDto Create(Game game) {
             var currentPlayer = game.GetCurrentPlayer();
@@ -57,6 +58,7 @@ namespace PuertoRico.Engine.DTOs
                 SelectableRoles = game.Roles
                     .Select(RoleDto.Create)
                     .ToList(),
+                Endpoint = game.Endpoint
             };
         }
     }

@@ -16,11 +16,11 @@ namespace PuertoRico.Engine.DAL
         private readonly Container _actionsContainer;
         private readonly Container _gamesContainer;
         private readonly ILogger<CosmosGameRepository> _logger;
-        private readonly string _instanceName;
+        private readonly string _gameEndpoint;
 
         public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger, IConfiguration configuration) {
             _logger = logger;
-            _instanceName = configuration["InstanceName"];
+            _gameEndpoint = configuration["GameEndpoint"];
             
             logger.LogWarning("Trying to connect cosmos endpoint: " + dbClient.Endpoint);
 
@@ -55,7 +55,7 @@ namespace PuertoRico.Engine.DAL
         }
 
         public Task<IEnumerable<GameEntity>> GetStartedGamesForCurrentApplication() {
-            return GetGames(g => g.IsStarted && g.OwnerApplication == _instanceName);
+            return GetGames(g => g.IsStarted && g.Endpoint == _gameEndpoint);
         }
 
         public Task<IEnumerable<GameEntity>> GetStartedGamesByPlayer(string userId) {
@@ -67,7 +67,7 @@ namespace PuertoRico.Engine.DAL
         }
 
         public async Task CreateGame(GameEntity gameEntity) {
-            gameEntity.OwnerApplication = _instanceName;
+            gameEntity.Endpoint = _gameEndpoint;
             await _gamesContainer.CreateItemAsync(gameEntity, gameEntity.GetPartitionKey());
 
             _logger.LogWarning("Game created: " + gameEntity.Name);
