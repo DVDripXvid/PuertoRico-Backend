@@ -1,7 +1,9 @@
-﻿namespace PuertoRico.Engine.SignalR.Events
+﻿using PuertoRico.Engine.DTOs;
+
+namespace PuertoRico.Engine.SignalR.Events
 {
     public class GameStartedEvent : IGameEvent
     {
-        public string GameId { get; set; }
+        public GameSummaryDto Game { get; set; }
     }
 }

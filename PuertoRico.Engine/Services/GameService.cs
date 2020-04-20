@@ -45,11 +45,6 @@ namespace PuertoRico.Engine.Services
             return Task.CompletedTask;
         }
 
-        public Task StartGame(Game game) {
-            game.Start();
-            return Task.CompletedTask;
-        }
-
         public Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId) {
             lock (game) {
                 var player = game.Players.WithUserId(userId);

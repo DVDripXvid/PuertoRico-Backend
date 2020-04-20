@@ -1,26 +1,18 @@
 ﻿using System.Threading.Tasks;
 using PuertoRico.Engine.SignalR.Events;
 
-namespace PuertoRico.Engine.SignalR
+namespace PuertoRico.Engine.SignalR.Hubs
 {
-    public interface IGameClient
+    public interface ILobbyClient
     {
         Task GameCreated(GameCreatedEvent ev);
 
         Task GameDestroyed(GameDestroyedEvent ev);
-
-        Task GameChanged(GameChangedEvent ev);
-
-        Task GameEnded(GameEndedEvent ev);
-
+        
         Task GameStarted(GameStartedEvent ev);
 
         Task PlayerJoined(PlayerJoinedEvent ev);
 
         Task PlayerLeft(PlayerLeftEvent ev);
-
-        Task AvailableActionTypesChanged(AvailableActionTypesChangedEvent ev);
-        
-        Task Error(GameErrorEvent ev);
     }
 }

@@ -10,7 +10,6 @@ namespace PuertoRico.Engine.Services
     {
         Task ExecuteRoleAction(Game game, string userId, IAction action);
         Task ExecuteSelectRole(Game game, string userId, SelectRole role);
-        Task StartGame(Game game);
         Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId);
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain.Player;
 
 namespace PuertoRico.Engine.DTOs
 {
     public class PlayerDto
     {
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public string UserId { get; set; }
         public string PictureUrl { get; set; }
         public ICollection<BuildingDto> Buildings { get; set; }
@@ -19,7 +20,7 @@ namespace PuertoRico.Engine.DTOs
 
         public static PlayerDto Create(IPlayer player) {
             return new PlayerDto {
-                UserName = player.Username,
+                Username = player.Username,
                 UserId = player.UserId,
                 PictureUrl = player.PictureUrl,
                 Buildings = player.Buildings
@@ -35,6 +36,14 @@ namespace PuertoRico.Engine.DTOs
                     .Select(g => GoodDto.Create(g.Type))
                     .ToList(),
                 Doubloons = player.Doubloons,
+            };
+        }
+
+        public static PlayerDto Create(OwnedPlayerEntity player) {
+            return new PlayerDto {
+                Username = player.Username,
+                UserId = player.UserId,
+                PictureUrl = player.PictureUrl
             };
         }
     }

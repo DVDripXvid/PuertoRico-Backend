@@ -21,6 +21,7 @@ namespace PuertoRico.Engine.Domain
     {
         public string Id { get; }
         public string Name { get; }
+        public string OwnerApplication { get; set; }
         public PlantationDeck PlantationDeck { get; private set; }
         public List<IBuilding> Buildings { get; private set; }
         public Stack<Colonist> Colonists { get; private set; }

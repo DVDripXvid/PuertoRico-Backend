@@ -10,6 +10,7 @@ using PuertoRico.Engine.DTOs;
 using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.SignalR.Commands;
 using PuertoRico.Engine.SignalR.Events;
+using PuertoRico.Engine.SignalR.Hubs;
 using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

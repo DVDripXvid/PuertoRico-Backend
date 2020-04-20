@@ -4,26 +4,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.Domain.Player;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
 
 namespace PuertoRico.Engine.DAL
 {
     public class GameEntity : CosmosEntity
     {
-        [JsonProperty]
-        public string Name { get; set; }
-        
-        [JsonProperty]
-        public ICollection<OwnedPlayerEntity> Players { get; set; }
+        [JsonProperty] public string Name { get; set; }
 
-        [JsonProperty]
-        public bool IsStarted { get; set; }
+        [JsonProperty] public ICollection<OwnedPlayerEntity> Players { get; set; }
 
-        [JsonProperty] 
-        public int RandomSeed { get; set; }
+        [JsonProperty] public bool IsStarted { get; set; }
+
+        [JsonProperty] public int RandomSeed { get; set; }
+
+        [JsonProperty] public string OwnerApplication { get; set; }
 
         public override PartitionKey GetPartitionKey() {
-            return new PartitionKey(RandomSeed);
+            return new PartitionKey(Id);
+        }
+
+        public Game ToModel() {
+            var game = new Game(Id, Name, RandomSeed) {OwnerApplication = OwnerApplication};
+            Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
+            return game;
         }
 
         public static GameEntity Create(Game game) {
@@ -37,6 +42,7 @@ namespace PuertoRico.Engine.DAL
                     PictureUrl = p.PictureUrl,
                 }).ToList(),
                 IsStarted = game.IsStarted,
+                OwnerApplication = game.OwnerApplication
             };
         }
     }

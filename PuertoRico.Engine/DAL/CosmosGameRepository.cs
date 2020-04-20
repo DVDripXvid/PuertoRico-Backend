@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 
@@ -15,12 +16,14 @@ namespace PuertoRico.Engine.DAL
         private readonly Container _actionsContainer;
         private readonly Container _gamesContainer;
         private readonly ILogger<CosmosGameRepository> _logger;
+        private readonly string _instanceName;
 
-        public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger) {
+        public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger, IConfiguration configuration) {
             _logger = logger;
+            _instanceName = configuration["InstanceName"];
             
             logger.LogWarning("Trying to connect cosmos endpoint: " + dbClient.Endpoint);
-            
+
             var databaseResp = dbClient.CreateDatabaseIfNotExistsAsync("Puerto").Result;
 
             _actionsContainer = databaseResp.Database
@@ -28,7 +31,7 @@ namespace PuertoRico.Engine.DAL
                 .Result.Container;
 
             _gamesContainer = databaseResp.Database
-                .CreateContainerIfNotExistsAsync("Games", "/RandomSeed")
+                .CreateContainerIfNotExistsAsync("Games", "/id")
                 .Result.Container;
         }
 
@@ -51,8 +54,12 @@ namespace PuertoRico.Engine.DAL
             return results;
         }
 
-        public Task<IEnumerable<GameEntity>> GetStartedGames() {
-            return GetGames(g => g.IsStarted);
+        public Task<IEnumerable<GameEntity>> GetStartedGamesForCurrentApplication() {
+            return GetGames(g => g.IsStarted && g.OwnerApplication == _instanceName);
+        }
+
+        public Task<IEnumerable<GameEntity>> GetStartedGamesByPlayer(string userId) {
+            return GetGames(g => g.IsStarted && g.Players.Any(p => p.UserId == userId));
         }
 
         public Task<IEnumerable<GameEntity>> GetLobbyGames() {
@@ -60,8 +67,9 @@ namespace PuertoRico.Engine.DAL
         }
 
         public async Task CreateGame(GameEntity gameEntity) {
+            gameEntity.OwnerApplication = _instanceName;
             await _gamesContainer.CreateItemAsync(gameEntity, gameEntity.GetPartitionKey());
-            
+
             _logger.LogWarning("Game created: " + gameEntity.Name);
         }
 
@@ -69,11 +77,16 @@ namespace PuertoRico.Engine.DAL
             await _gamesContainer.ReplaceItemAsync(gameEntity, gameEntity.Id, gameEntity.GetPartitionKey());
         }
 
-        public async Task DeleteGame(string gameId, int randomSeed) {
-            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(randomSeed));
+        public async Task DeleteGame(string gameId) {
+            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(gameId));
             // action deletion is implemented as cosmos trigger & stored procedure
         }
-        
+
+        public async Task<GameEntity> GetGame(string gameId) {
+            var result = await _gamesContainer.ReadItemAsync<GameEntity>(gameId, new PartitionKey(gameId));
+            return result.Resource;
+        }
+
         private async Task<IEnumerable<GameEntity>> GetGames(Expression<Func<GameEntity, bool>> predicate) {
             var query = _gamesContainer.GetItemLinqQueryable<GameEntity>()
                 .Where(predicate)
@@ -89,6 +102,7 @@ namespace PuertoRico.Engine.DAL
                 var response = await query.ReadNextAsync();
                 results.AddRange(response.ToList());
             }
+
             return results;
         }
     }

@@ -2,14 +2,10 @@
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.SignalR.Commands;
 
-namespace PuertoRico.Engine.SignalR
+namespace PuertoRico.Engine.SignalR.Hubs
 {
     public interface IGameHub
     {
-        Task CreateGame(CreateGameCmd cmd);
-        Task JoinGame(GenericGameCmd cmd);
-        Task LeaveGame(GenericGameCmd cmd);
-        Task StartGame(GenericGameCmd cmd);
         Task SelectRole(GameCommand<SelectRole> cmd);
         Task BonusProduction(GameCommand<BonusProduction> cmd);
         Task Build(GameCommand<Build> cmd);

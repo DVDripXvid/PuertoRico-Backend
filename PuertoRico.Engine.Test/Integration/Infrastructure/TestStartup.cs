@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.SignalR;
+using PuertoRico.Engine.SignalR.Hubs;
 
 namespace PuertoRico.Engine.Test.Integration.Infrastructure
 {

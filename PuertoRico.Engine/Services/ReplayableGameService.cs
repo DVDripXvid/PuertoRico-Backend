@@ -26,11 +26,6 @@ namespace PuertoRico.Engine.Services
             await _repository.AddAction(game.Id, userId, selectRole);
         }
 
-        public async Task StartGame(Game game) {
-            await _gameService.StartGame(game);
-            await _repository.ReplaceGame(GameEntity.Create(game));
-        }
-
         public Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId) {
             return _gameService.GetAvailableActionTypeForUser(game, userId);
         }
