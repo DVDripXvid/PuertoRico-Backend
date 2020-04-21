@@ -52,19 +52,21 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         public HashSet<ActionType> GetAvailableActionTypes(IPlayer player) {
-            var playerPhase = _playerPhases[player.UserId];
-            if (playerPhase == EndedPhase) {
-                return new HashSet<ActionType> {
-                    ActionType.EndRole
-                };
-            }
+            if (_playerPhases.TryGetValue(player.UserId, out var playerPhase)) {
+                if (playerPhase == EndedPhase) {
+                    return new HashSet<ActionType> {
+                        ActionType.EndRole
+                    };
+                }
 
-            var availableActionTypes = GetAvailableActionTypesInternal(player, playerPhase);
-            if (availableActionTypes.Count == 0) {
-                throw new InvalidOperationException($"no available actions");
-            }
+                var availableActionTypes = GetAvailableActionTypesInternal(player, playerPhase);
+                if (availableActionTypes.Count == 0) {
+                    throw new InvalidOperationException($"no available actions");
+                }
 
-            return availableActionTypes;
+                return availableActionTypes;   
+            }
+            return new HashSet<ActionType>();
         }
 
         protected bool HasPrivilege(IPlayer player) {
