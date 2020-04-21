@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings;
 using PuertoRico.Engine.Domain.Resources;
@@ -20,7 +21,7 @@ namespace PuertoRico.Engine.Domain.Player
         public List<IGood> Goods { get; } = new List<IGood>();
         public string UserId { get; }
         public string Username { get; }
-        public string PictureUrl  { get; }
+        public string PictureUrl { get; }
 
         [Obsolete]
         public Player() {
@@ -58,6 +59,7 @@ namespace PuertoRico.Engine.Domain.Player
             if (Role != null) {
                 throw new InvalidOperationException("Cannot select a new role before putting the current back");
             }
+
             game.Roles.Remove(role);
             Role = role;
             role.OnSelect(this);
@@ -67,8 +69,14 @@ namespace PuertoRico.Engine.Domain.Player
             if (Role == null) {
                 throw new InvalidOperationException("Player has no role");
             }
+
             game.Roles.Add(Role);
             Role = null;
+        }
+
+        public int CalculateVictoryPoints() {
+            return VictoryPointChips.Count + Buildings.Select(b => b.VictoryPoint).Sum() +
+                   Buildings.LargeBuildings.Select(b => b.ComputeVictoryPointsIfWorking(this)).Sum();
         }
     }
 }

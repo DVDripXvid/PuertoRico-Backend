@@ -145,9 +145,12 @@ namespace PuertoRico.Engine.SignalR.Hubs
         }
 
         private async Task AfterGameEnded(Game game) {
-            // TODO: calculate victory points
             var endedEvent = new GameEndedEvent {
-                GameId = game.Id
+                GameId = game.Id,
+                Results = game.Players.Select(p => new PlayerResult {
+                    Player = PlayerDto.Create(p),
+                    Result = p.CalculateVictoryPoints()
+                })
             };
             await Clients.Groups(game.Id).GameEnded(endedEvent);
             _inProgressGameStore.Remove(game.Id);

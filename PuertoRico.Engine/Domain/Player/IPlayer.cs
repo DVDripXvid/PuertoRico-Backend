@@ -28,5 +28,6 @@ namespace PuertoRico.Engine.Domain.Player
         void AddGoods(IEnumerable<IGood> goods);
         void SelectRole(IRole role, Game game);
         void PutBackRole(Game game);
+        int CalculateVictoryPoints();
     }
 }
