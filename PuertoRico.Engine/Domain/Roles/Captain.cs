@@ -245,15 +245,15 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             var vpList = Game.VictoryPointChips.Take(vpCount).ToList();
+            Game.VictoryPointChips.RemoveRange(0, vpList.Count);
+            
             if (vpList.Count < vpCount) {
                 Game.SendShouldFinishSignal();
                 while (vpList.Count < vpCount) {
                     vpList.Add(new VictoryPointChip());
                 }
             }
-
             player.VictoryPointChips.AddRange(vpList);
-            Game.VictoryPointChips.RemoveRange(0, vpList.Count);
         }
 
         private static LargeWarehouse GetLargeWarehouseOrDefault(IPlayer player) {
