@@ -32,7 +32,9 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             Game.Players.ForEach(p => {
+                var waste = new List<IGood>(p.Goods);
                 p.Goods.Clear();
+                Game.Goods.AddRange(waste);
                 ReleaseStoredGoods(p);
             });
             
