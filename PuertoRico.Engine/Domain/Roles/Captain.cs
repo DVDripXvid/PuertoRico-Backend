@@ -37,7 +37,7 @@ namespace PuertoRico.Engine.Domain.Roles
                 Game.Goods.AddRange(waste);
                 ReleaseStoredGoods(p);
             });
-            
+
             Game.CargoShips.ForEach(ship => {
                 if (ship.IsFull()) {
                     var releasedGoods = ship.ReleaseLoadedGoods();
@@ -203,7 +203,8 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         private bool IsAbleToUseWharf(IPlayer player) {
-            return player.Buildings.ContainsWorkingOfType<Wharf>() && !_isWharfUsedBy[player.UserId];
+            return player.Goods.Any() && player.Buildings.ContainsWorkingOfType<Wharf>() &&
+                   !_isWharfUsedBy[player.UserId];
         }
 
         private bool CanBeLoaded(GoodType goodType) {
@@ -247,6 +248,8 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             var vpList = Game.VictoryPointChips.Take(vpCount).ToList();
+            Game.VictoryPointChips.RemoveRange(0, vpList.Count);
+
             if (vpList.Count < vpCount) {
                 Game.SendShouldFinishSignal();
                 while (vpList.Count < vpCount) {
@@ -255,7 +258,6 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             player.VictoryPointChips.AddRange(vpList);
-            Game.VictoryPointChips.RemoveRange(0, vpList.Count);
         }
 
         private static LargeWarehouse GetLargeWarehouseOrDefault(IPlayer player) {
