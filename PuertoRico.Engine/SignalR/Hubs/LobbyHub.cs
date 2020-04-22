@@ -22,7 +22,8 @@ namespace PuertoRico.Engine.SignalR.Hubs
         private readonly IUserService _userService;
         private const string LobbyGroup = "Lobby";
 
-        public LobbyHub(IGameRepository repository, IUserService userService, IInProgressGameStore inprogressGameStore) {
+        public LobbyHub(IGameRepository repository, IUserService userService,
+            IInProgressGameStore inprogressGameStore) {
             _repository = repository;
             _userService = userService;
             _inprogressGameStore = inprogressGameStore;
@@ -31,8 +32,18 @@ namespace PuertoRico.Engine.SignalR.Hubs
         public override async Task OnConnectedAsync() {
             await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
             var games = await _repository.GetStartedGamesByPlayer(GetUserId());
-            foreach (var game in games.Select(g => g.ToModel())) {
-                await Clients.Caller.GameStarted(new GameStartedEvent {Game = GameSummaryDto.Create(game)});
+            foreach (var game in games) {
+                await Clients.Caller.GameStarted(new GameStartedEvent {Game = GameSummaryDto.Create(game.ToModel())});
+                if (game.Status == GameStatus.ENDED) {
+                    var endedEvent = new GameEndedEvent {
+                        GameId = game.Id,
+                        Results = game.Players.Select(p => new PlayerResultDto {
+                            Player = PlayerDto.Create(p),
+                            Result = p.Result ?? 0
+                        })
+                    };
+                    await Clients.Caller.GameEnded(endedEvent);
+                }
             }
 
             var lobbyGames = await _repository.GetLobbyGames();

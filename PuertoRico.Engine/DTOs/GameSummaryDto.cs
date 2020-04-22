@@ -10,13 +10,15 @@ namespace PuertoRico.Engine.DTOs
         public string Name { get; set; }
         public string Endpoint { get; set; }
         public ICollection<PlayerDto> Players { get; set; }
+        public GameStatus Status { get; set; }
 
         public static GameSummaryDto Create(Game game) {
             return new GameSummaryDto {
                 Id = game.Id,
                 Name = game.Name,
                 Endpoint = game.Endpoint,
-                Players = game.Players.Select(PlayerDto.Create).ToList()
+                Players = game.Players.Select(PlayerDto.Create).ToList(),
+                Status = game.Status
             };
         }
     }

@@ -8,6 +8,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
+using PuertoRico.Engine.Domain;
 
 namespace PuertoRico.Engine.DAL
 {
@@ -54,16 +55,16 @@ namespace PuertoRico.Engine.DAL
             return results;
         }
 
-        public Task<IEnumerable<GameEntity>> GetStartedGamesForCurrentApplication() {
-            return GetGames(g => g.IsStarted && g.Endpoint == _gameEndpoint);
+        public Task<IEnumerable<GameEntity>> GetInProgressGamesForCurrentApplication() {
+            return GetGames(g => g.Status == GameStatus.RUNNING && g.Endpoint == _gameEndpoint);
         }
 
         public Task<IEnumerable<GameEntity>> GetStartedGamesByPlayer(string userId) {
-            return GetGames(g => g.IsStarted && g.Players.Any(p => p.UserId == userId));
+            return GetGames(g => g.Status != GameStatus.INITIAL && g.Players.Any(p => p.UserId == userId));
         }
 
         public Task<IEnumerable<GameEntity>> GetLobbyGames() {
-            return GetGames(g => !g.IsStarted);
+            return GetGames(g => g.Status == GameStatus.INITIAL);
         }
 
         public async Task CreateGame(GameEntity gameEntity) {

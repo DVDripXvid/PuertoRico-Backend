@@ -53,7 +53,7 @@ namespace PuertoRico.Engine.Stores.InMemory
         }
         
         private async Task InitializeGamesFromDb(IGameRepository repository) {
-            var games = await repository.GetStartedGamesForCurrentApplication();
+            var games = await repository.GetInProgressGamesForCurrentApplication();
             foreach (var gameEntity in games) {
                 var game = new Game(gameEntity.Id, gameEntity.Name, gameEntity.RandomSeed);
                 gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));

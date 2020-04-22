@@ -34,11 +34,10 @@ namespace PuertoRico.Engine.Domain
         public List<CargoShip> CargoShips { get; private set; }
         public List<VictoryPointChip> VictoryPointChips { get; private set; }
         public List<IRole> Roles { get; private set; }
-        public bool IsStarted { get; private set; }
-        public bool IsEnded { get; set; }
         public int RandomSeed { get; private set; }
         public int PlayerCount => Players.Count;
-        public bool IsFull => IsStarted || PlayerCount == GameConfig.MaxPlayer;
+        public GameStatus Status { get; set; } = GameStatus.INITIAL;
+        public bool IsFull => Status != GameStatus.INITIAL || PlayerCount == GameConfig.MaxPlayer;
         private bool _isLastYear;
         private IPlayer _governor;
         private readonly object _syncRoot = new object();
@@ -87,7 +86,7 @@ namespace PuertoRico.Engine.Domain
             InitializePlayerDoubloons(Players);
             InitializePlayerPlantations(Players, PlantationDeck);
 
-            IsStarted = true;
+            Status = GameStatus.RUNNING;
         }
 
         public void Join(IPlayer player) {
@@ -106,7 +105,7 @@ namespace PuertoRico.Engine.Domain
 
         public void Leave(IPlayer player) {
             lock (_syncRoot) {
-                if (IsStarted) {
+                if (Status != GameStatus.INITIAL) {
                     throw new InvalidOperationException("Game already started");
                 }
 
@@ -130,7 +129,8 @@ namespace PuertoRico.Engine.Domain
 
         private void StartNewYear() {
             if (_isLastYear) {
-                IsEnded = true;
+                Status = GameStatus.ENDED;
+                Players.ForEach(p => p.PutBackRole(this));
                 return;
             }
 

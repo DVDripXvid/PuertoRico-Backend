@@ -15,11 +15,14 @@ namespace PuertoRico.Engine.DAL
 
         [JsonProperty] public ICollection<OwnedPlayerEntity> Players { get; set; }
 
-        [JsonProperty] public bool IsStarted { get; set; }
+        [JsonProperty] public GameStatus Status { get; set; }
 
         [JsonProperty] public int RandomSeed { get; set; }
 
         [JsonProperty] public string Endpoint { get; set; }
+        
+        [JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ttl { get; set; }
 
         public override PartitionKey GetPartitionKey() {
             return new PartitionKey(Id);
@@ -41,7 +44,7 @@ namespace PuertoRico.Engine.DAL
                     UserId = p.UserId,
                     PictureUrl = p.PictureUrl,
                 }).ToList(),
-                IsStarted = game.IsStarted,
+                Status = game.Status,
                 Endpoint = game.Endpoint
             };
         }
@@ -52,5 +55,7 @@ namespace PuertoRico.Engine.DAL
         public string UserId { get; set; }
         public string Username { get; set; }
         public string PictureUrl { get; set; }
+
+        public int? Result { get; set; }
     }
 }

@@ -14,5 +14,7 @@ namespace PuertoRico.Engine.SignalR.Hubs
         Task PlayerJoined(PlayerJoinedEvent ev);
 
         Task PlayerLeft(PlayerLeftEvent ev);
+        
+        Task GameEnded(GameEndedEvent ev);
     }
 }

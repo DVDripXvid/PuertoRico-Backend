@@ -30,7 +30,6 @@ namespace PuertoRico.Engine.SignalR.Hubs
         }
 
         public override async Task OnConnectedAsync() {
-            // TODO: get gameId from somewhere
             if (Context.GetHttpContext().Request.Query.TryGetValue("gameId", out var gameId)) {
                 var game = _inProgressGameStore.FindById(gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
@@ -130,7 +129,7 @@ namespace PuertoRico.Engine.SignalR.Hubs
             var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
             await Task.WhenAll(tasks);
 
-            if (game.IsEnded) {
+            if (game.Status == GameStatus.ENDED) {
                 await AfterGameEnded(game);
             }
         }
@@ -145,16 +144,13 @@ namespace PuertoRico.Engine.SignalR.Hubs
         }
 
         private async Task AfterGameEnded(Game game) {
+            var results = await _gameService.HandleFinishedGame(game);
             var endedEvent = new GameEndedEvent {
                 GameId = game.Id,
-                Results = game.Players.Select(p => new PlayerResult {
-                    Player = PlayerDto.Create(p),
-                    Result = p.CalculateVictoryPoints()
-                })
+                Results = results
             };
             await Clients.Groups(game.Id).GameEnded(endedEvent);
             _inProgressGameStore.Remove(game.Id);
-            // TODO: delete from db
         }
 
         private string GetUserId() {

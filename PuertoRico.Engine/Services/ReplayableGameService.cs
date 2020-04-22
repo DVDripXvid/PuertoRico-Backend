@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.DTOs;
 
 namespace PuertoRico.Engine.Services
 {
@@ -28,6 +30,22 @@ namespace PuertoRico.Engine.Services
 
         public Task<IEnumerable<ActionType>> GetAvailableActionTypeForUser(Game game, string userId) {
             return _gameService.GetAvailableActionTypeForUser(game, userId);
+        }
+
+        public async Task<IEnumerable<PlayerResultDto>> HandleFinishedGame(Game game) {
+            var results = game.Players.Select(p => new PlayerResultDto {
+                Player = PlayerDto.Create(p),
+                Result = p.CalculateVictoryPoints()
+            }).ToList();
+
+            var entity = GameEntity.Create(game);
+            foreach (var player in entity.Players) {
+                player.Result = results.First(r => r.Player.UserId == player.UserId).Result;
+            }
+            entity.ttl = 60 * 60 * 24 * 7;  // Delete finished in a week
+            await _repository.ReplaceGame(entity);
+            
+            return results;
         }
     }
 }
