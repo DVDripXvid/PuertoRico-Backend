@@ -17,13 +17,6 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
         }
 
         [Fact]
-        public void CanSkipHacienda() {
-            var player = GetPlayerWithoutPrivilege();
-            AddHaciendaTo(player);
-            CanSkipPhase(player, ActionType.TakePlantation);
-        }
-
-        [Fact]
         public void CanTakePlantation() {
             var action = new TakePlantation {
                 TileIndex = 0,

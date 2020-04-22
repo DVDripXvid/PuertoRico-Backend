@@ -9,6 +9,7 @@ namespace PuertoRico.Engine.Domain.Roles
     {
         private const string SelectTilePhase = "select_tile";
         private const string HaciendaPhase = "hacienda";
+        private const string SelectTileOrHaciendaPhase = "select_tile_or_hacienda";
 
         public Settler(Game game) : base(game) { }
 
@@ -20,22 +21,31 @@ namespace PuertoRico.Engine.Domain.Roles
         protected override HashSet<ActionType> GetAvailableActionTypesInternal(IPlayer player, string phase) {
             var actions = new HashSet<ActionType> {ActionType.EndPhase};
             switch (phase) {
-                case SelectTilePhase:
-                    if ((HasPrivilege(player) || player.Buildings.ContainsWorkingOfType<ConstructionHut>())
-                        && Game.Quarries.Count > 0
-                        && !player.Tiles.IsFull()) {
-                        actions.Add(ActionType.TakeQuarry);
-                    }
-
-                    if (!player.Tiles.IsFull()) {
+                case SelectTileOrHaciendaPhase:
+                    if (CanTakePlantation(player))
                         actions.Add(ActionType.TakePlantation);
-                    }
+
+                    if (CanTakeQuarry(player))
+                        actions.Add(ActionType.TakeQuarry);
+
+                    if (CanUseHacienda(player))
+                        actions.Add(ActionType.TakeRandomPlantation);
 
                     break;
+
+                case SelectTilePhase:
+                    if (CanTakePlantation(player))
+                        actions.Add(ActionType.TakePlantation);
+
+                    if (CanTakeQuarry(player))
+                        actions.Add(ActionType.TakeQuarry);
+
+                    break;
+
+
                 case HaciendaPhase:
-                    if (!player.Tiles.IsFull()) {
+                    if (CanUseHacienda(player))
                         actions.Add(ActionType.TakeRandomPlantation);
-                    }
 
                     break;
                 default:
@@ -49,18 +59,16 @@ namespace PuertoRico.Engine.Domain.Roles
         protected override void ExecuteInternal(IAction action, IPlayer player, string phase) {
             switch (action) {
                 case TakePlantation takePlantation:
-                    ExecuteTakePlantation(takePlantation, player);
+                    ExecuteTakePlantation(takePlantation, player, phase);
                     break;
                 case TakeQuarry _:
-                    ExecuteTakeQuarry(player);
+                    ExecuteTakeQuarry(player, phase);
                     break;
                 case TakeRandomPlantation _:
-                    ExecuteTakeRandomPlantation(player);
+                    ExecuteTakeRandomPlantation(player, phase);
                     break;
                 case EndPhase _:
-                    SetPlayerPhase(player, phase == HaciendaPhase
-                        ? SelectTilePhase
-                        : EndedPhase);
+                    SetPlayerPhase(player, EndedPhase);
                     break;
                 default:
                     HandleUnsupportedAction(action);
@@ -69,12 +77,10 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         protected override string GetInitialPhase(IPlayer player) {
-            return player.Buildings.ContainsWorkingOfType<Hacienda>()
-                ? HaciendaPhase
-                : SelectTilePhase;
+            return CanUseHacienda(player) ? SelectTileOrHaciendaPhase : SelectTilePhase;
         }
 
-        private void ExecuteTakePlantation(TakePlantation takePlantation, IPlayer player) {
+        private void ExecuteTakePlantation(TakePlantation takePlantation, IPlayer player, string phase) {
             var plantation = Game.PlantationDeck.DrawOneVisible(takePlantation.TileIndex);
             if (player.Buildings.ContainsWorkingOfType<Hospice>() && Game.Colonists.Count > 0) {
                 var colonist = Game.Colonists.Pop();
@@ -82,10 +88,16 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             player.Tiles.Add(plantation);
-            SetPlayerPhase(player, EndedPhase);
+            
+            if (phase == SelectTileOrHaciendaPhase && CanUseHacienda(player)) {
+                SetPlayerPhase(player, HaciendaPhase);
+            }
+            else {
+                SetPlayerPhase(player, EndedPhase);
+            }
         }
 
-        private void ExecuteTakeQuarry(IPlayer player) {
+        private void ExecuteTakeQuarry(IPlayer player, string phase) {
             var quarry = Game.Quarries.Pop();
             if (player.Buildings.ContainsWorkingOfType<Hospice>() && Game.Colonists.Count > 0) {
                 var colonist = Game.Colonists.Pop();
@@ -93,13 +105,37 @@ namespace PuertoRico.Engine.Domain.Roles
             }
 
             player.Tiles.Add(quarry);
-            SetPlayerPhase(player, EndedPhase);
+            if (phase == SelectTileOrHaciendaPhase && CanUseHacienda(player)) {
+                SetPlayerPhase(player, HaciendaPhase);
+            }
+            else {
+                SetPlayerPhase(player, EndedPhase);
+            }
         }
 
-        private void ExecuteTakeRandomPlantation(IPlayer player) {
+        private void ExecuteTakeRandomPlantation(IPlayer player, string phase) {
             var plantation = Game.PlantationDeck.DrawRandom();
             player.Tiles.Add(plantation);
-            SetPlayerPhase(player, SelectTilePhase);
+            
+            if (phase == SelectTileOrHaciendaPhase && CanTakePlantation(player)) {
+                SetPlayerPhase(player, SelectTilePhase);
+            }
+            else {
+                SetPlayerPhase(player, EndedPhase);
+            }
+        }
+
+        private bool CanUseHacienda(IPlayer player) {
+            return player.Buildings.ContainsWorkingOfType<Hacienda>() && !player.Tiles.IsFull();
+        }
+
+        private bool CanTakePlantation(IPlayer player) {
+            return !player.Tiles.IsFull();
+        }
+
+        private bool CanTakeQuarry(IPlayer player) {
+            return (HasPrivilege(player) || player.Buildings.ContainsWorkingOfType<ConstructionHut>())
+                   && Game.Quarries.Count > 0 && !player.Tiles.IsFull();
         }
     }
 }
