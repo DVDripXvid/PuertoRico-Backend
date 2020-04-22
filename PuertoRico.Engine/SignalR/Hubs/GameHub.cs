@@ -60,7 +60,7 @@ namespace PuertoRico.Engine.SignalR.Hubs
             };
             await Clients.Group(cmd.GameId).GameChanged(changedEvent);
 
-            await SendAvailableActionTypes(game, GetUserId());
+            await BroadcastAvailableActionTypes(game);
         }
 
         public Task BonusProduction(GameCommand<BonusProduction> cmd) {
@@ -126,12 +126,16 @@ namespace PuertoRico.Engine.SignalR.Hubs
 
             await Clients.Groups(gameId).GameChanged(new GameChangedEvent {Game = GameDto.Create(game)});
 
-            var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
-            await Task.WhenAll(tasks);
+            await BroadcastAvailableActionTypes(game);
 
             if (game.Status == GameStatus.ENDED) {
                 await AfterGameEnded(game);
             }
+        }
+
+        private Task BroadcastAvailableActionTypes(Game game) {
+            var tasks = game.Players.Select(p => SendAvailableActionTypes(game, p.UserId));
+            return Task.WhenAll(tasks);
         }
 
         private async Task SendAvailableActionTypes(Game game, string userId) {
