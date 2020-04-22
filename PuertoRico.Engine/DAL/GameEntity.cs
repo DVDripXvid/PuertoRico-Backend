@@ -20,7 +20,7 @@ namespace PuertoRico.Engine.DAL
         [JsonProperty] public int RandomSeed { get; set; }
 
         [JsonProperty] public string Endpoint { get; set; }
-        
+
         [JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
         public int? ttl { get; set; }
 
@@ -29,8 +29,8 @@ namespace PuertoRico.Engine.DAL
         }
 
         public Game ToModel() {
-            var game = new Game(Id, Name, RandomSeed) {Endpoint = Endpoint};
-            Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
+            var game = new Game(Id, Name, RandomSeed) {Endpoint = Endpoint, Status = Status};
+            game.Players.AddRange(Players.Select(p => new Player(p.UserId, p.Username, p.PictureUrl)));
             return game;
         }
 
