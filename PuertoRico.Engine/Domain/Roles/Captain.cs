@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.IdentityModel.Tokens;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain.Buildings.Small;
 using PuertoRico.Engine.Domain.Misc;
@@ -217,11 +216,10 @@ namespace PuertoRico.Engine.Domain.Roles
         }
 
         private void ReleaseStoredGoods(IPlayer player) {
-            if (_defaultStore.ContainsKey(player.UserId) && _defaultStore[player.UserId] != null) {
-                player.Goods.Add(_defaultStore[player.UserId]);
+            if (_defaultStore.Remove(player.UserId, out var storedGood))
+            {
+                player.Goods.Add(storedGood);
             }
-
-            _defaultStore.Clear();
 
             var largeWarehouse = GetLargeWarehouseOrDefault(player);
             if (largeWarehouse != null) {
