@@ -141,6 +141,10 @@ namespace PuertoRico.Engine.Domain
         }
 
         public HashSet<ActionType> GetAvailableActionTypes(IPlayer player) {
+            if (Status == GameStatus.ENDED) {
+                return new HashSet<ActionType>();
+            }
+            
             if (CurrentRoleOwnerPlayer.Role == null) {
                 return player == CurrentRoleOwnerPlayer 
                     ? new HashSet<ActionType> {ActionType.SelectRole} 
