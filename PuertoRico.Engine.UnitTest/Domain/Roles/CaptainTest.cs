@@ -20,6 +20,23 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
             Assert.Single(availableActionTypes);
             Assert.Equal(ActionType.DeliverGoods, availableActionTypes.First());
         }
+        
+        [Fact]
+        public void CanSkipWharf() {
+            var wharf = new Wharf();
+            wharf.AddWorker(new Colonist());
+            RoleOwner.Buildings.Add(wharf);
+            RoleOwner.Goods.Add(new Coffee());
+            Game.CargoShips[0].Load(new List<IGood>{new Corn()});
+            Game.CargoShips[1].Load(new List<IGood>{new Sugar()});
+            Game.CargoShips[2].Load(new List<IGood>{new Indigo()});
+            
+            ReselectRole();
+            
+            var action = new EndPhase();
+            CanExecuteActionMultiple(action, RoleOwner);
+            CanExecuteActionOnce(action, RoleOwner);
+        }
 
         [Fact]
         public void CanUsePrivilege() {

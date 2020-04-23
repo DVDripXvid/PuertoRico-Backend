@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.Domain;
+using PuertoRico.Engine.Domain.Buildings;
 
 namespace PuertoRico.Engine.DAL
 {
@@ -80,7 +81,6 @@ namespace PuertoRico.Engine.DAL
 
         public async Task DeleteGame(string gameId) {
             await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(gameId));
-            // action deletion is implemented as cosmos trigger & stored procedure
         }
 
         public async Task<GameEntity> GetGame(string gameId) {

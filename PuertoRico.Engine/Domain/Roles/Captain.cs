@@ -75,13 +75,12 @@ namespace PuertoRico.Engine.Domain.Roles
                     if (IsAbleToUseCargoShip(player)) {
                         actions.Add(ActionType.DeliverGoods);
                     }
+                    else {
+                        actions.Add(ActionType.EndPhase);
+                    }
 
                     if (IsAbleToUseWharf(player)) {
                         actions.Add(ActionType.UseWharf);
-                    }
-
-                    if (actions.Count == 0) {
-                        actions.Add(ActionType.EndPhase);
                     }
 
                     break;
