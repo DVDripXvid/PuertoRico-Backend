@@ -14,6 +14,7 @@ using PuertoRico.Engine.Domain.Resources.Goods;
 using PuertoRico.Engine.Domain.Roles;
 using PuertoRico.Engine.Domain.Tiles;
 using PuertoRico.Engine.Domain.Tiles.Plantations;
+using Toore.Shuffling;
 
 namespace PuertoRico.Engine.Domain
 {
@@ -26,7 +27,7 @@ namespace PuertoRico.Engine.Domain
         public List<IBuilding> Buildings { get; private set; }
         public Stack<Colonist> Colonists { get; private set; }
         public Stack<Quarry> Quarries { get; private set; }
-        public List<IPlayer> Players { get; }
+        public List<IPlayer> Players { get; private set; }
         public IPlayer CurrentRoleOwnerPlayer { get; private set; }
         public ColonistShip ColonistShip { get; private set; }
         public TradeHouse TradeHouse { get; } = new TradeHouse();
@@ -60,6 +61,10 @@ namespace PuertoRico.Engine.Domain
             if (PlayerCount < GameConfig.MinPlayer || PlayerCount > GameConfig.MaxPlayer) {
                 throw new InvalidOperationException("Invalid player count");
             }
+
+            Players = ShufflePlayers(Players);
+            _governor = Players.First();
+            CurrentRoleOwnerPlayer = _governor;
             
             PlantationDeck = new PlantationDeck(PlayerCount, RandomSeed);
 
@@ -75,8 +80,6 @@ namespace PuertoRico.Engine.Domain
             }
 
             Buildings = InitializeBuildings();
-            _governor = Players.First();
-            CurrentRoleOwnerPlayer = _governor;
             ColonistShip = new ColonistShip(this);
             Goods = InitializeGoods();
             CargoShips = InitializeCargoShips(PlayerCount);
@@ -323,6 +326,11 @@ namespace PuertoRico.Engine.Domain
             }
 
             return vpList;
+        }
+
+        private static List<IPlayer> ShufflePlayers(List<IPlayer> players) {
+            var shuffler = new FisherYatesShuffler(new RandomWrapper());
+            return players.Shuffle(shuffler);
         }
     }
 }
