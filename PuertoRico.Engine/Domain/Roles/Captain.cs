@@ -139,6 +139,7 @@ namespace PuertoRico.Engine.Domain.Roles
             _isWharfUsedBy[player.UserId] = true;
             var deliveredGoods = player.Goods.Where(g => g.Type == useWharf.GoodType).ToList();
             DoDeliver(deliveredGoods, player);
+            Game.Goods.AddRange(deliveredGoods);
             if (IsAbleToUseCargoShip(player)) {
                 MoveToNextPlayer();
             }
