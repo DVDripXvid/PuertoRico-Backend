@@ -20,20 +20,31 @@ namespace PuertoRico.Engine.DAL
         private readonly ILogger<CosmosGameRepository> _logger;
         private readonly string _gameEndpoint;
 
-        public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger, IConfiguration configuration) {
+        public CosmosGameRepository(CosmosClient dbClient, ILogger<CosmosGameRepository> logger,
+            IConfiguration configuration) {
             _logger = logger;
             _gameEndpoint = configuration["GameEndpoint"];
-            
+
             logger.LogWarning("Trying to connect cosmos endpoint: " + dbClient.Endpoint);
 
             var databaseResp = dbClient.CreateDatabaseIfNotExistsAsync("Puerto").Result;
 
+            const int sevenWeeks = 60 * 60 * 24 * 7 * 7;
+
             _actionsContainer = databaseResp.Database
-                .CreateContainerIfNotExistsAsync("Actions", "/GameId")
+                .CreateContainerIfNotExistsAsync(new ContainerProperties {
+                    Id = "Actions",
+                    PartitionKeyPath = "/GameId",
+                    DefaultTimeToLive = sevenWeeks
+                })
                 .Result.Container;
 
             _gamesContainer = databaseResp.Database
-                .CreateContainerIfNotExistsAsync("Games", "/id")
+                .CreateContainerIfNotExistsAsync(new ContainerProperties {
+                    Id = "Games",
+                    PartitionKeyPath = "/id",
+                    DefaultTimeToLive = sevenWeeks
+                })
                 .Result.Container;
         }
 
