@@ -23,7 +23,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Buildings.Large
             player.Build(new SmallMarket());
             player.Build(new Hacienda());
             
-            player.Build(new SugarMill());
+            player.Build(new LargeSugarMill());
 
             var vp = _cityHall.ComputeVictoryPoints(player);
             

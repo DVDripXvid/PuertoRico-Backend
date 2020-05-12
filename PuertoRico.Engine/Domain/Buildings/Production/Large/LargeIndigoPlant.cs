@@ -2,9 +2,9 @@
 
 namespace PuertoRico.Engine.Domain.Buildings.Production.Large
 {
-    public class SugarMill : LargeProductionBuilding<Sugar>
+    public class LargeIndigoPlant : LargeProductionBuilding<Indigo>
     {
-        public override int Cost => 4;
+        public override int Cost => 3;
         public override int VictoryPoint => 2;
         public override int MaxDiscountByQuarry => 2;
     }

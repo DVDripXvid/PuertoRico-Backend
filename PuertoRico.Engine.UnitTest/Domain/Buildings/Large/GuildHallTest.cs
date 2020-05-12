@@ -31,7 +31,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Buildings.Large
         public void ComputeVPs_LargeAndSmallBuildings() {
             IPlayer player = new Player();
             player.Doubloons = 21;
-            var buildings = new IBuilding[] {new SmallSugarMill(), new SmallIndigoPlant(), new SugarMill()};
+            var buildings = new IBuilding[] {new SmallSugarMill(), new SmallIndigoPlant(), new LargeSugarMill()};
             var expectedVp = buildings.Select(b => b.VictoryPoint).Sum();
             buildings.ToList().ForEach(b => player.Build(b));
             player.Build(_guildHall);

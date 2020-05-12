@@ -93,7 +93,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
                             PlayerIndex = 1,
                             Buildings = new List<BuildingDefinition> {
                                 new BuildingDefinition {
-                                    BuildingType = typeof(SugarMill),
+                                    BuildingType = typeof(LargeSugarMill),
                                     WorkerCount = 2
                                 },
                             },
@@ -259,7 +259,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
                             PlayerIndex = 1,
                             Buildings = new List<BuildingDefinition> {
                                 new BuildingDefinition {
-                                    BuildingType = typeof(IndigoPlant),
+                                    BuildingType = typeof(LargeIndigoPlant),
                                     WorkerCount = 1,
                                 },
                                 new BuildingDefinition {
@@ -302,7 +302,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
                             PlayerIndex = 2,
                             Buildings = new List<BuildingDefinition> {
                                 new BuildingDefinition {
-                                    BuildingType = typeof(SugarMill),
+                                    BuildingType = typeof(LargeSugarMill),
                                     WorkerCount = 1,
                                 },
                                 new BuildingDefinition {
@@ -370,7 +370,7 @@ namespace PuertoRico.Engine.UnitTest.Domain.Roles
                             PlayerIndex = 1,
                             Buildings = new List<BuildingDefinition> {
                                 new BuildingDefinition {
-                                    BuildingType = typeof(SugarMill),
+                                    BuildingType = typeof(LargeSugarMill),
                                     WorkerCount = 1
                                 },
                                 new BuildingDefinition {
