@@ -91,11 +91,11 @@ namespace PuertoRico.Engine.DAL
         }
 
         public async Task DeleteGame(string gameId) {
-            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(gameId));
+            await _gamesContainer.DeleteItemAsync<GameEntity>(gameId, new PartitionKey(GameEntity.DefaultPartition));
         }
 
         public async Task<GameEntity> GetGame(string gameId) {
-            var result = await _gamesContainer.ReadItemAsync<GameEntity>(gameId, new PartitionKey(gameId));
+            var result = await _gamesContainer.ReadItemAsync<GameEntity>(gameId, new PartitionKey(GameEntity.DefaultPartition));
             return result.Resource;
         }
 

@@ -11,7 +11,9 @@ namespace PuertoRico.Engine.DAL
 {
     public class GameEntity : CosmosEntity
     {
-        [JsonProperty] public int Partition { get; set; } = 21;
+        public const int DefaultPartition = 21;
+        
+        [JsonProperty] public int Partition { get; set; } = DefaultPartition;
         
         [JsonProperty] public string Name { get; set; }
 
