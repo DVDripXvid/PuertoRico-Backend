@@ -11,6 +11,8 @@ namespace PuertoRico.Engine.DAL
 {
     public class GameEntity : CosmosEntity
     {
+        [JsonProperty] public int Partition { get; set; } = 21;
+        
         [JsonProperty] public string Name { get; set; }
 
         [JsonProperty] public ICollection<OwnedPlayerEntity> Players { get; set; }
@@ -25,7 +27,7 @@ namespace PuertoRico.Engine.DAL
         public int? ttl { get; set; }
 
         public override PartitionKey GetPartitionKey() {
-            return new PartitionKey(Id);
+            return new PartitionKey(Partition);
         }
 
         public Game ToModel() {

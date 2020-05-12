@@ -42,7 +42,7 @@ namespace PuertoRico.Engine.DAL
             _gamesContainer = databaseResp.Database
                 .CreateContainerIfNotExistsAsync(new ContainerProperties {
                     Id = "Games",
-                    PartitionKeyPath = "/id",
+                    PartitionKeyPath = "/Partition",
                     DefaultTimeToLive = sevenWeeks
                 })
                 .Result.Container;
