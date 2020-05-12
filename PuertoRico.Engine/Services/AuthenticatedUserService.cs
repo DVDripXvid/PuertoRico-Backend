@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace PuertoRico.Engine.Services
 {
-    public class UserService : IUserService
+    public class AuthenticatedUserService : IUserService
     {
         public string GetUserId(HubCallerContext context)
         {

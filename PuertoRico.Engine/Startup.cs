@@ -55,7 +55,7 @@ namespace PuertoRico.Engine
             services.AddTransient<IGameService, GameService>();
             services.AddTransient<IReplayableGameService, ReplayableGameService>();
             services.AddSingleton<IInProgressGameStore, InMemoryInProgressGameStore>();
-            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IUserService, AuthenticatedUserService>();
 
             services.AddSingleton<IGameRepository, CosmosGameRepository>();
 
