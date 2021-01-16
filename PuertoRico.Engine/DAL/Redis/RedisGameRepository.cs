@@ -17,6 +17,7 @@ namespace PuertoRico.Engine.DAL.Redis
         private readonly IDatabase _redisDb;
         private readonly string _gameEndpoint;
         private readonly ILogger<RedisGameRepository> _logger;
+        private static readonly TimeSpan _gameExpiration = TimeSpan.FromDays(7);
 
         public RedisGameRepository(ConnectionMultiplexer redisConnection, IConfiguration configuration, ILogger<RedisGameRepository> logger)
         {
@@ -44,6 +45,7 @@ namespace PuertoRico.Engine.DAL.Redis
             gameEntity.Endpoint = _gameEndpoint;
             var value = JsonConvert.SerializeObject(gameEntity);
             await _redisDb.ListRightPushAsync(gameEntity.Id, value);
+            await _redisDb.KeyExpireAsync(gameEntity.Id, _gameExpiration);
             _logger.LogInformation("Game created: {} ({})", gameEntity.Name, gameEntity.Id);
         }
 
@@ -55,9 +57,7 @@ namespace PuertoRico.Engine.DAL.Redis
         public async Task<IEnumerable<ActionEntity>> GetActionsByGame(string gameId)
         {
             var items = await _redisDb.ListRangeAsync(gameId, 1);
-            return items.ToStringArray()
-                .Skip(1)
-                .Select(item => JsonConvert.DeserializeObject<ActionEntity>(item));
+            return items.ToStringArray().Select(item => JsonConvert.DeserializeObject<ActionEntity>(item));
         }
 
         public async Task<GameEntity> GetGame(string gameId)
@@ -81,9 +81,10 @@ namespace PuertoRico.Engine.DAL.Redis
             return GetAllGames(g => g.Status == GameStatus.INITIAL);
         }
 
-        public Task ReplaceGame(GameEntity gameEntity)
+        public async Task ReplaceGame(GameEntity gameEntity)
         {
-            throw new NotImplementedException();
+            var value = JsonConvert.SerializeObject(gameEntity);
+            await _redisDb.ListSetByIndexAsync(gameEntity.Id, 0, value);
         }
 
         private async Task<IEnumerable<GameEntity>> GetAllGames(Func<GameEntity, bool> predicate)
