@@ -4,15 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Azure.Cosmos;
 using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DTOs;
-using PuertoRico.Engine.SignalR;
 using PuertoRico.Engine.SignalR.Commands;
 using PuertoRico.Engine.SignalR.Events;
 using PuertoRico.Engine.SignalR.Hubs;
 using PuertoRico.Engine.Test.Integration.Infrastructure;
 using Xunit;
+
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace PuertoRico.Engine.Test.Integration
@@ -23,11 +22,13 @@ namespace PuertoRico.Engine.Test.Integration
         protected readonly Dictionary<string, GameHubProxy> Sessions = new Dictionary<string, GameHubProxy>();
         protected readonly IGameClient FakeClient = A.Fake<IGameClient>();
 
-        public TestBase() {
+        public TestBase()
+        {
             Factory = new TestWebApplicationFactory();
         }
 
-        protected async Task<GameHubProxy> CreateSession(string userId) {
+        protected async Task<GameHubProxy> CreateSession(string userId)
+        {
             var hub = new HubConnectionBuilder()
                 .WithUrl(new Uri(Factory.Server.BaseAddress, "game"),
                     o => { o.HttpMessageHandlerFactory = _ => Factory.Server.CreateHandler(); }).Build();
@@ -37,24 +38,27 @@ namespace PuertoRico.Engine.Test.Integration
             return proxy;
         }
 
-        protected async Task<(string, GameHubProxy, GameHubProxy, GameHubProxy)> Create3PlayerGame() {
+        protected async Task<(string, GameHubProxy, GameHubProxy, GameHubProxy)> Create3PlayerGame()
+        {
             var session1 = await CreateSession("user1");
             var session2 = await CreateSession("user2");
             var session3 = await CreateSession("user3");
             string gameId = null;
-            session2.GameCreated += ev => {
+            session2.GameCreated += ev =>
+            {
                 gameId = ev.GameId;
-                var joinCmd = new GenericGameCmd {GameId = ev.GameId};
+                var joinCmd = new GenericGameCmd { GameId = ev.GameId };
                 session2.JoinGame(joinCmd).Wait();
                 session3.JoinGame(joinCmd).Wait();
             };
-            await session1.CreateGame(new CreateGameCmd {Name = "3PlayerGame"});
+            await session1.CreateGame(new CreateGameCmd { Name = "3PlayerGame" });
             session1.PlayerJoinedSignal.WaitOne(5000);
             session1.PlayerJoinedSignal.WaitOne(5000);
             Assert.NotNull(gameId);
             GameChangedEvent changedEvent = null;
             session1.GameChanged += ev => changedEvent = ev;
-            await session1.StartGame(new GenericGameCmd {
+            await session1.StartGame(new GenericGameCmd
+            {
                 GameId = gameId
             });
             Assert.NotNull(changedEvent);
@@ -63,22 +67,23 @@ namespace PuertoRico.Engine.Test.Integration
             return (gameId, session1, session2, session3);
         }
 
-        protected GameHubProxy GetCurrentSession(GameDto game) {
+        protected GameHubProxy GetCurrentSession(GameDto game)
+        {
             return Sessions[game.CurrentPlayer.UserId];
         }
 
-        protected static async Task SelectRole(GameHubProxy session, string roleName) {
+        protected static async Task SelectRole(GameHubProxy session, string roleName)
+        {
             var roleIdx = session.GameState.SelectableRoles.Single(r => r.Name == roleName).Index;
-            await session.SelectRole(new GameCommand<SelectRole> {
-                Action = new SelectRole {RoleIndex = roleIdx},
+            await session.SelectRole(new GameCommand<SelectRole>
+            {
+                Action = new SelectRole { RoleIndex = roleIdx },
                 GameId = session.GameState.Id
             });
         }
 
-        public void Dispose() {
-            var cosmos = Factory.GetService<CosmosClient>();
-            cosmos.GetContainer("Puerto", "Actions").DeleteContainerAsync().Wait();
-            cosmos.GetContainer("Puerto", "Games").DeleteContainerAsync().Wait();
+        public void Dispose()
+        {
             Factory?.Dispose();
         }
     }

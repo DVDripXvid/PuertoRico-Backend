@@ -21,56 +21,70 @@ namespace PuertoRico.Engine.Stores.InMemory
         private readonly ILogger<InMemoryInProgressGameStore> _logger;
 
         public InMemoryInProgressGameStore(IGameRepository repository, IGameService gameService,
-            ILogger<InMemoryInProgressGameStore> logger) {
+            ILogger<InMemoryInProgressGameStore> logger)
+        {
             _gameService = gameService;
             _logger = logger;
             InitializeGamesFromDb(repository).Wait();
         }
 
-        public Game FindById(string gameId) {
-            if (_games.ContainsKey(gameId)) {
+        public Game FindById(string gameId)
+        {
+            if (_games.ContainsKey(gameId))
+            {
                 return _games[gameId];
             }
-            
+
             throw new GameException("Game not found");
         }
 
-        public void  Add(Game game) {
-            if (_games.ContainsKey(game.Id)) {
+        public void Add(Game game)
+        {
+            if (_games.ContainsKey(game.Id))
+            {
                 throw new InvalidOperationException("Game already added with id = " + game.Id);
             }
-            
+
             _games[game.Id] = game;
         }
 
-        public Game Remove(string gameId) {
-            if (_games.TryGetValue(gameId, out var game)) {
+        public Game Remove(string gameId)
+        {
+            if (_games.TryGetValue(gameId, out var game))
+            {
                 _games.Remove(gameId);
                 return game;
             }
 
             throw new InvalidOperationException($"Game with id = {gameId} does not exist");
         }
-        
-        private async Task InitializeGamesFromDb(IGameRepository repository) {
+
+        private async Task InitializeGamesFromDb(IGameRepository repository)
+        {
             var games = await repository.GetInProgressGamesForCurrentApplication();
-            foreach (var gameEntity in games) {
+            foreach (var gameEntity in games)
+            {
                 var game = new Game(gameEntity.Id, gameEntity.Name, gameEntity.RandomSeed);
                 gameEntity.Players.ToList().ForEach(p => game.Join(new Player(p.UserId, p.Username, p.PictureUrl)));
                 game.Start();
                 var actions = await repository.GetActionsByGame(game.Id);
                 var isValidGame = true;
-                foreach (var a in actions.ToList()) {
-                    try {
-                        if (a.Action is SelectRole selectRole) {
+                foreach (var a in actions.ToList())
+                {
+                    try
+                    {
+                        if (a.Action is SelectRole selectRole)
+                        {
                             await _gameService.ExecuteSelectRole(game, a.UserId, selectRole);
                         }
-                        else {
+                        else
+                        {
                             await _gameService.ExecuteRoleAction(game, a.UserId, a.Action);
                         }
                     }
-                    catch (Exception e) {
-                        _logger.LogError(e, $"Failed to replay {a.Action.ActionType} action. gameId={game.Id} userId={a.UserId}, timestamp={a.TimeStamp}");
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"Failed to replay {a.Action.ActionType} action. gameId={game.Id} userId={a.UserId}");
                         _logger.LogError($"Failed to initialize game: ${game.Name} (${game.Id})");
                         isValidGame = false;
                         break;
