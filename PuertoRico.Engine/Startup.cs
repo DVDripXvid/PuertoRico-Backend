@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.DAL.Redis;
+using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Services;
 using PuertoRico.Engine.SignalR.Hubs;
 using PuertoRico.Engine.Stores;
@@ -54,7 +55,8 @@ namespace PuertoRico.Engine
             AddSignalR(services)
                 .AddJsonProtocol(c => c.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-            services.AddSingleton(ConnectionMultiplexer.Connect(Configuration["REDIS_URL"]));
+            var redisConfig = new ConfigurationOptions().ParseUrl(Configuration["REDIS_URL"]);
+            services.AddSingleton(ConnectionMultiplexer.Connect(redisConfig));
 
             services.AddTransient<IGameService, GameService>();
             services.AddTransient<IReplayableGameService, ReplayableGameService>();
