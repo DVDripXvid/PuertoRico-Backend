@@ -99,9 +99,9 @@ namespace PuertoRico.Engine
             }
 
             app.UseCors();
-            app.UseAuthentication();
 
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
