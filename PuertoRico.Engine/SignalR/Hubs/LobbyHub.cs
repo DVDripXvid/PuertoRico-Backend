@@ -23,21 +23,27 @@ namespace PuertoRico.Engine.SignalR.Hubs
         private const string LobbyGroup = "Lobby";
 
         public LobbyHub(IGameRepository repository, IUserService userService,
-            IInProgressGameStore inprogressGameStore) {
+            IInProgressGameStore inprogressGameStore)
+        {
             _repository = repository;
             _userService = userService;
             _inprogressGameStore = inprogressGameStore;
         }
 
-        public override async Task OnConnectedAsync() {
+        public override async Task OnConnectedAsync()
+        {
             await Groups.AddToGroupAsync(Context.ConnectionId, LobbyGroup);
             var games = await _repository.GetStartedGamesByPlayer(GetUserId());
-            foreach (var game in games) {
-                await Clients.Caller.GameStarted(new GameStartedEvent {Game = GameSummaryDto.Create(game.ToModel())});
-                if (game.Status == GameStatus.ENDED) {
-                    var endedEvent = new GameEndedEvent {
+            foreach (var game in games)
+            {
+                await Clients.Caller.GameStarted(new GameStartedEvent { Game = GameSummaryDto.Create(game.ToModel()) });
+                if (game.Status == GameStatus.ENDED)
+                {
+                    var endedEvent = new GameEndedEvent
+                    {
                         GameId = game.Id,
-                        Results = game.Players.Select(p => new PlayerResultDto {
+                        Results = game.Players.Select(p => new PlayerResultDto
+                        {
                             Player = PlayerDto.Create(p),
                             Result = p.Result ?? 0
                         })
@@ -47,8 +53,10 @@ namespace PuertoRico.Engine.SignalR.Hubs
             }
 
             var lobbyGames = await _repository.GetLobbyGames();
-            foreach (var lobbyGame in lobbyGames) {
-                var gameCreatedEvent = new GameCreatedEvent {
+            foreach (var lobbyGame in lobbyGames)
+            {
+                var gameCreatedEvent = new GameCreatedEvent
+                {
                     GameId = lobbyGame.Id,
                     GameName = lobbyGame.Name,
                     Players = lobbyGame.Players.Select(PlayerDto.Create),
@@ -57,12 +65,14 @@ namespace PuertoRico.Engine.SignalR.Hubs
             }
         }
 
-        public async Task CreateGame(CreateGameCmd cmd) {
+        public async Task CreateGame(CreateGameCmd cmd)
+        {
             var game = new Game(cmd.Name);
             var player = CreatePlayerForCurrentUser();
             game.Join(player);
             await _repository.CreateGame(GameEntity.Create(game));
-            var gameCreatedEvent = new GameCreatedEvent {
+            var gameCreatedEvent = new GameCreatedEvent
+            {
                 GameId = game.Id,
                 GameName = game.Name,
                 Players = game.Players.Select(PlayerDto.Create)
@@ -70,70 +80,83 @@ namespace PuertoRico.Engine.SignalR.Hubs
             await Clients.Group(LobbyGroup).GameCreated(gameCreatedEvent);
         }
 
-        public async Task JoinGame(GenericGameCmd cmd) {
+        public async Task JoinGame(GenericGameCmd cmd)
+        {
             var gameEntity = await _repository.GetGame(cmd.GameId);
             var game = gameEntity.ToModel();
             var player = CreatePlayerForCurrentUser();
             game.Join(player);
             await _repository.ReplaceGame(GameEntity.Create(game));
 
-            var joinedEvent = new PlayerJoinedEvent {
+            var joinedEvent = new PlayerJoinedEvent
+            {
                 Player = PlayerDto.Create(player),
                 GameId = game.Id
             };
             await Clients.Group(LobbyGroup).PlayerJoined(joinedEvent);
         }
 
-        public async Task LeaveGame(GenericGameCmd cmd) {
+        public async Task LeaveGame(GenericGameCmd cmd)
+        {
             var gameEntity = await _repository.GetGame(cmd.GameId);
             var game = gameEntity.ToModel();
             var player = game.Players.WithUserId(GetUserId());
             game.Leave(player);
 
-            if (game.Players.Any()) {
+            if (game.Players.Any())
+            {
                 await _repository.ReplaceGame(GameEntity.Create(game));
-                var leftEvent = new PlayerLeftEvent() {
+                var leftEvent = new PlayerLeftEvent()
+                {
                     Player = PlayerDto.Create(player),
                     GameId = game.Id
                 };
                 await Clients.Group(LobbyGroup).PlayerLeft(leftEvent);
             }
-            else {
+            else
+            {
                 await _repository.DeleteGame(game.Id);
-                var removedEvent = new GameDestroyedEvent() {
+                var removedEvent = new GameDestroyedEvent()
+                {
                     GameId = game.Id
                 };
                 await Clients.Group(LobbyGroup).GameDestroyed(removedEvent);
             }
         }
 
-        public async Task StartGame(GenericGameCmd cmd) {
+        public async Task StartGame(GenericGameCmd cmd)
+        {
             var gameEntity = await _repository.GetGame(cmd.GameId);
             var game = gameEntity.ToModel();
-            game.Start();
+            game.Start(shufflePlayers: true);
 
             await _repository.ReplaceGame(GameEntity.Create(game));
             _inprogressGameStore.Add(game);
 
-            var startedEvent = new GameStartedEvent {
+            var startedEvent = new GameStartedEvent
+            {
                 Game = GameSummaryDto.Create(game)
             };
             await Clients.Group(LobbyGroup).GameStarted(startedEvent);
         }
 
-        private IPlayer CreatePlayerForCurrentUser() {
+        private IPlayer CreatePlayerForCurrentUser()
+        {
             return new Player(GetUserId(), GetUsername(), GetPictureUrl());
         }
 
-        private string GetUserId() {
+        private string GetUserId()
+        {
             return _userService.GetUserId(Context);
         }
 
-        private string GetUsername() {
+        private string GetUsername()
+        {
             return _userService.GetUsername(Context);
         }
 
-        private string GetPictureUrl() {
+        private string GetPictureUrl()
+        {
             return _userService.GetPictureUrl(Context);
         }
     }
