@@ -48,7 +48,8 @@ namespace PuertoRico.Engine
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .WithOrigins(
-                        "http://localhost:3000"
+                        "http://localhost:3000",
+                        "https://puertorico.netlify.app"
                     )
                 ));
 
