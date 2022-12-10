@@ -14,7 +14,7 @@ namespace PuertoRico.Engine.Stores.InMemory
 {
     public class InMemoryInProgressGameStore : IInProgressGameStore
     {
-        private readonly Dictionary<string, Game> _games = new();
+        private readonly Dictionary<string, Game> _games = new Dictionary<string, Game>();
         private readonly IGameService _gameService;
         private readonly ILogger<InMemoryInProgressGameStore> _logger;
 

@@ -11,7 +11,7 @@ namespace PuertoRico.Engine.DAL.InMemory
     {
         private readonly string _gameEndpoint;
 
-        private static readonly Dictionary<string, GameEntity> Games = new();
+        private static readonly Dictionary<string, GameEntity> Games = new Dictionary<string, GameEntity>();
 
         public InMemoryGameRepository(IConfiguration configuration)
         {
