@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using PuertoRico.Engine.DAL;
+using PuertoRico.Engine.DAL.InMemory;
 using PuertoRico.Engine.DAL.Redis;
 using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Services;
@@ -56,15 +58,24 @@ namespace PuertoRico.Engine
             AddSignalR(services)
                 .AddJsonProtocol(c => c.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-            var redisConfig = new ConfigurationOptions().ParseUrl(Configuration["REDIS_URL"]);
-            services.AddSingleton(ConnectionMultiplexer.Connect(redisConfig));
+            try
+            {
+                var redisConfig = new ConfigurationOptions().ParseUrl(Configuration["REDIS_URL"]);
+                services.AddSingleton(ConnectionMultiplexer.Connect(redisConfig));
+                services.AddSingleton<IGameRepository, RedisGameRepository>();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Failed to parse redis url = {0}", Configuration["REDIS_URL"]);
+                Console.WriteLine("Fallback to in-memory game repository");
+                services.AddSingleton<IGameRepository, InMemoryGameRepository>();
+            }
+            
 
             services.AddTransient<IGameService, GameService>();
             services.AddTransient<IReplayableGameService, ReplayableGameService>();
             services.AddSingleton<IInProgressGameStore, InMemoryInProgressGameStore>();
             services.AddSingleton<IUserService, AuthenticatedUserService>();
-
-            services.AddSingleton<IGameRepository, RedisGameRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt =>
