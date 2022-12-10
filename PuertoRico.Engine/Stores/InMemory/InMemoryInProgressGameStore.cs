@@ -7,16 +7,14 @@ using PuertoRico.Engine.Actions;
 using PuertoRico.Engine.DAL;
 using PuertoRico.Engine.Domain;
 using PuertoRico.Engine.Domain.Player;
-using PuertoRico.Engine.Domain.Tiles.Plantations;
 using PuertoRico.Engine.Exceptions;
-using PuertoRico.Engine.Extensions;
 using PuertoRico.Engine.Services;
 
 namespace PuertoRico.Engine.Stores.InMemory
 {
     public class InMemoryInProgressGameStore : IInProgressGameStore
     {
-        private readonly Dictionary<string, Game> _games = new Dictionary<string, Game>();
+        private readonly Dictionary<string, Game> _games = new();
         private readonly IGameService _gameService;
         private readonly ILogger<InMemoryInProgressGameStore> _logger;
 
