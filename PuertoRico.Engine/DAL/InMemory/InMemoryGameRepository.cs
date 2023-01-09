@@ -26,6 +26,7 @@ namespace PuertoRico.Engine.DAL.InMemory
 
         public Task CreateGame(GameEntity gameEntity)
         {
+            gameEntity.Endpoint = _gameEndpoint;
             Games.Add(gameEntity.Id, gameEntity);
             return Task.CompletedTask;
         }
